@@ -49,7 +49,12 @@ function filenameNoExtension(filename) {
 }
 
 function deploy(wasm) {
-  exe(`${cli} contract deploy --wasm ${wasm} --ignore-checks --alias ${filenameNoExtension(wasm)}`);
+  let name = filenameNoExtension(wasm);
+  if (name === 'escrow') {
+    exe(`${cli} contract deploy --wasm ${wasm} --ignore-checks --alias ${name} -- --admin ${process.env.STELLAR_ACCOUNT_ADDRESS}`);
+  } else {
+    exe(`${cli} contract deploy --wasm ${wasm} --ignore-checks --alias ${name}`);
+  }
 }
 
 function deployAll() {
