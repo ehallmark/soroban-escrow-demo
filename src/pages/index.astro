@@ -1,15 +1,12 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Card from "../components/Card.astro";
-import helloWorld from "../contracts/hello_world";
 import ConnectWallet from '../components/ConnectWallet.astro';
 import Counter from '../components/Counter.astro';
-const { result } = await helloWorld.hello({ to: "Evan" });
-const greeting = result.join(" ");
 ---
 
 <script is:inline>var global = global || window;</script>
-<Layout title={greeting}>
+<Layout title={"Welcome to Soroban"}>
 	<main>
 		<svg
 			class="astro-a"
@@ -39,7 +36,6 @@ const greeting = result.join(" ");
 				</linearGradient>
 			</defs>
 		</svg>
-		<h1>{greeting}</h1>
 		<ConnectWallet />
 		<p class="instructions">
 			<Counter />
