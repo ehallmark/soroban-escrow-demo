@@ -1,3 +1,3 @@
 [build]
-  command = "for dir in /packages/* ; do cd $dir && npm run build && cd ../../ ; done && npm run build"
+  command = "for dir in packages/* ; do cd $dir && npm run build && cd ../../ ; done && npm run build"
   publish = "dist"
