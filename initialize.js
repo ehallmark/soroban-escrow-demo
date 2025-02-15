@@ -39,8 +39,8 @@ function removeFiles(pattern) {
 }
 
 function buildAll() {
-  removeFiles(`${dirname}/target/wasm32-unknown-unknown/release/*.wasm`);
-  removeFiles(`${dirname}/target/wasm32-unknown-unknown/release/*.d`);
+  //removeFiles(`${dirname}/target/wasm32-unknown-unknown/release/*.wasm`);
+  //removeFiles(`${dirname}/target/wasm32-unknown-unknown/release/*.d`);
   exe(`${cli} contract build`);
 }
 
