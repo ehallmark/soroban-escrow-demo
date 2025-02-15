@@ -34,7 +34,7 @@ if (typeof window !== 'undefined') {
 export const networks = {
   testnet: {
     networkPassphrase: "Test SDF Network ; September 2015",
-    contractId: "CBGPCQOOLQ2VMOM4PXDGBQBDWB3TP5SXX4UHVVLMRZJYKAPQYSHMJ3Z4",
+    contractId: "CDVI7ZBD5ZDOJVYDGRXQJJA6VW5AUFQEKP6JAHKQFL2XZ5DVVZXY7XEU",
   }
 } as const
 
@@ -62,7 +62,28 @@ export interface Client {
      * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
      */
     simulate?: boolean;
-  }) => Promise<AssembledTransaction<u32>>
+  }) => Promise<AssembledTransaction<i128>>
+
+  /**
+   * Construct and simulate a decrement transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Decrement decrements an internal counter, and returns the value.
+   */
+  decrement: (options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<i128>>
 
 }
 export class Client extends ContractClient {
@@ -82,11 +103,13 @@ export class Client extends ContractClient {
   }
   constructor(public readonly options: ContractClientOptions) {
     super(
-      new ContractSpec([ "AAAAAAAAAEBJbmNyZW1lbnQgaW5jcmVtZW50cyBhbiBpbnRlcm5hbCBjb3VudGVyLCBhbmQgcmV0dXJucyB0aGUgdmFsdWUuAAAACWluY3JlbWVudAAAAAAAAAAAAAABAAAABA==" ]),
+      new ContractSpec([ "AAAAAAAAAEBJbmNyZW1lbnQgaW5jcmVtZW50cyBhbiBpbnRlcm5hbCBjb3VudGVyLCBhbmQgcmV0dXJucyB0aGUgdmFsdWUuAAAACWluY3JlbWVudAAAAAAAAAAAAAABAAAACw==",
+        "AAAAAAAAAEBEZWNyZW1lbnQgZGVjcmVtZW50cyBhbiBpbnRlcm5hbCBjb3VudGVyLCBhbmQgcmV0dXJucyB0aGUgdmFsdWUuAAAACWRlY3JlbWVudAAAAAAAAAAAAAABAAAACw==" ]),
       options
     )
   }
   public readonly fromJSON = {
-    increment: this.txFromJSON<u32>
+    increment: this.txFromJSON<i128>,
+        decrement: this.txFromJSON<i128>
   }
 }
