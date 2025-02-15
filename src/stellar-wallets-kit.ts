@@ -19,7 +19,7 @@ const kit = new StellarWalletsKit({
     // StellarWalletsKit forces you to specify a wallet, even if the user didn't
     // select one yet, so we default to Freighter.
     // We'll work around this later in `getPublicKey`.
-    selectedWalletId: getSelectedWalletId() ?? FREIGHTER_ID,
+    selectedWalletId: FREIGHTER_ID, //getSelectedWalletId() ?? FREIGHTER_ID,
 });
 
 export const signTransaction = kit.signTransaction.bind(kit);
