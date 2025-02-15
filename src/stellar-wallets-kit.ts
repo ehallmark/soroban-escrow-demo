@@ -1,5 +1,7 @@
 import {
     allowAllModules,
+    FreighterModule,
+    xBullModule,
     FREIGHTER_ID,
     StellarWalletsKit,
 } from "@creit.tech/stellar-wallets-kit";
@@ -11,7 +13,8 @@ function getSelectedWalletId() {
 }
 
 const kit = new StellarWalletsKit({
-    modules: allowAllModules(),
+    //modules: allowAllModules(),
+    modules: [new FreighterModule(), new xBullModule()],
     network: import.meta.env.PUBLIC_STELLAR_NETWORK_PASSPHRASE,
     // StellarWalletsKit forces you to specify a wallet, even if the user didn't
     // select one yet, so we default to Freighter.

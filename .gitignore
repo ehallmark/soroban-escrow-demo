@@ -34,3 +34,5 @@ pnpm-debug.log*
 # generated contract client imports
 #src/contracts/*
 #!src/contracts/util.ts
+
+.netlify/
