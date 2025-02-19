@@ -39,8 +39,8 @@ function removeFiles(pattern) {
 }
 
 function buildAll() {
-  //removeFiles(`${dirname}/target/wasm32-unknown-unknown/release/*.wasm`);
-  //removeFiles(`${dirname}/target/wasm32-unknown-unknown/release/*.d`);
+  removeFiles(`${dirname}/target/wasm32-unknown-unknown/release/*.wasm`);
+  removeFiles(`${dirname}/target/wasm32-unknown-unknown/release/*.d`);
   exe(`${cli} contract build`);
 }
 
@@ -50,18 +50,14 @@ function filenameNoExtension(filename) {
 
 function deploy(wasm) {
   let name = filenameNoExtension(wasm);
-  if (name === 'escrow') {
-    exe(`${cli} contract deploy --wasm ${wasm} --ignore-checks --alias ${name} -- --admin ${process.env.STELLAR_ACCOUNT_ADDRESS}`);
-  } else {
-    exe(`${cli} contract deploy --wasm ${wasm} --ignore-checks --alias ${name}`);
-  }
+  exe(`${cli} contract deploy --wasm ${wasm} --ignore-checks --alias ${name} -- --admin ${process.env.STELLAR_ACCOUNT_ADDRESS}`);
 }
 
 function deployAll() {
   mkdirSync(contractsDir, { recursive: true });
 
   const wasmFiles = glob(`${dirname}/target/wasm32-unknown-unknown/release/*.wasm`);
-
+  
   wasmFiles.forEach(deploy);
 }
 
