@@ -208,12 +208,16 @@ impl Contract {
         clear_pending_payment(&env, &retainor, &retainee);
     }
 
+    pub fn view_bill(env: Env, retainor: Address, retainee: Address) -> Option<Bill> {
+        get_pending_payment(&env, &retainor, &retainee)
+    }
+
     pub fn view_receipt(env: Env, retainor: Address, retainee: Address, index: u32) -> Option<Receipt> {
         get_receipt(&env, &retainor, &retainee, index)
     }
 
-    pub fn view_bill(env: Env, retainor: Address, retainee: Address) -> Option<Bill> {
-        get_pending_payment(&env, &retainor, &retainee)
+    pub fn history_index(env: Env, retainor: Address, retainee: Address) -> u32 {
+        get_history_index(&env, &retainor, &retainee)
     }
 
     pub fn view_receipt_history(env: Env, retainor: Address, retainee: Address, limit: u32) -> Vec<Receipt> {
@@ -222,7 +226,7 @@ impl Contract {
         if index < 1 {
             return history;
         }
-        if index > limit {
+        if limit > 0 && index > limit {
             for i in (index - limit + 1)..=index {
                 match get_receipt(&env, &retainor, &retainee, i) {
                     Some(receipt) => {
