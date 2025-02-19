@@ -34,7 +34,7 @@ if (typeof window !== 'undefined') {
 export const networks = {
   testnet: {
     networkPassphrase: "Test SDF Network ; September 2015",
-    contractId: "CAE7VNCGC4JGRQ3DHL2YYJ3VR4MYPSTR37GOAKGQQQN4W7G6VAYQS5LZ",
+    contractId: "CAQPCTBPIBMSK5RSP4LVV7XKBISVTDKZMUV2OBADN7VMHYDCWUA7OZUX",
   }
 } as const
 
@@ -319,7 +319,7 @@ export interface Client {
      * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
      */
     simulate?: boolean;
-  }) => Promise<AssembledTransaction<RetaineeInfo>>
+  }) => Promise<AssembledTransaction<Option<RetaineeInfo>>>
 
   /**
    * Construct and simulate a set_retainee_info transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
@@ -359,7 +359,7 @@ export interface Client {
      * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
      */
     simulate?: boolean;
-  }) => Promise<AssembledTransaction<RetainorInfo>>
+  }) => Promise<AssembledTransaction<Option<RetainorInfo>>>
 
   /**
    * Construct and simulate a set_retainor_info transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
@@ -417,9 +417,9 @@ export class Client extends ContractClient {
         "AAAAAAAAAAAAAAAQcmV0YWluZXJfYmFsYW5jZQAAAAIAAAAAAAAACHJldGFpbm9yAAAAEwAAAAAAAAAIcmV0YWluZWUAAAATAAAAAQAAA+gAAAfQAAAAD1JldGFpbmVyQmFsYW5jZQA=",
         "AAAAAAAAAAAAAAAUYWRkX3JldGFpbmVyX2JhbGFuY2UAAAAEAAAAAAAAAAhyZXRhaW5vcgAAABMAAAAAAAAACHJldGFpbmVlAAAAEwAAAAAAAAARYWRkaXRpb25hbF9hbW91bnQAAAAAAAALAAAAAAAAAAV0b2tlbgAAAAAAABMAAAAA",
         "AAAAAAAAAAAAAAAXcmVtb3ZlX3JldGFpbmVyX2JhbGFuY2UAAAAAAwAAAAAAAAAIcmV0YWlub3IAAAATAAAAAAAAAAhyZXRhaW5lZQAAABMAAAAAAAAABmFtb3VudAAAAAAACwAAAAA=",
-        "AAAAAAAAAAAAAAANcmV0YWluZWVfaW5mbwAAAAAAAAEAAAAAAAAACHJldGFpbmVlAAAAEwAAAAEAAAfQAAAADFJldGFpbmVlSW5mbw==",
+        "AAAAAAAAAAAAAAANcmV0YWluZWVfaW5mbwAAAAAAAAEAAAAAAAAACHJldGFpbmVlAAAAEwAAAAEAAAPoAAAH0AAAAAxSZXRhaW5lZUluZm8=",
         "AAAAAAAAAAAAAAARc2V0X3JldGFpbmVlX2luZm8AAAAAAAADAAAAAAAAAAhyZXRhaW5lZQAAABMAAAAAAAAABG5hbWUAAAAQAAAAAAAAAAlyZXRhaW5vcnMAAAAAAAPqAAAAEwAAAAA=",
-        "AAAAAAAAAAAAAAANcmV0YWlub3JfaW5mbwAAAAAAAAEAAAAAAAAACHJldGFpbm9yAAAAEwAAAAEAAAfQAAAADFJldGFpbm9ySW5mbw==",
+        "AAAAAAAAAAAAAAANcmV0YWlub3JfaW5mbwAAAAAAAAEAAAAAAAAACHJldGFpbm9yAAAAEwAAAAEAAAPoAAAH0AAAAAxSZXRhaW5vckluZm8=",
         "AAAAAAAAAAAAAAARc2V0X3JldGFpbm9yX2luZm8AAAAAAAADAAAAAAAAAAhyZXRhaW5vcgAAABMAAAAAAAAABG5hbWUAAAAQAAAAAAAAAAlyZXRhaW5lZXMAAAAAAAPqAAAAEwAAAAA=" ]),
       options
     )
@@ -436,9 +436,9 @@ export class Client extends ContractClient {
         retainer_balance: this.txFromJSON<Option<RetainerBalance>>,
         add_retainer_balance: this.txFromJSON<null>,
         remove_retainer_balance: this.txFromJSON<null>,
-        retainee_info: this.txFromJSON<RetaineeInfo>,
+        retainee_info: this.txFromJSON<Option<RetaineeInfo>>,
         set_retainee_info: this.txFromJSON<null>,
-        retainor_info: this.txFromJSON<RetainorInfo>,
+        retainor_info: this.txFromJSON<Option<RetainorInfo>>,
         set_retainor_info: this.txFromJSON<null>
   }
 }
