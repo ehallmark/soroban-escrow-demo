@@ -222,32 +222,38 @@ impl Contract {
         get_history_index(&env, &retainor, &retainee)
     }
 
-    pub fn view_receipt_history(env: Env, retainor: Address, retainee: Address, limit: u32) -> Vec<Receipt> {
+    pub fn view_receipt_history_range(env: Env, retainor: Address, retainee: Address, start: u32, end: u32) -> Vec<Receipt> {
         let mut history = Vec::new(&env);
+        for i in start..=end {
+            match get_receipt(&env, &retainor, &retainee, i) {
+                Some(receipt) => {
+                    history.push_back(receipt);
+                }
+                None => {}
+            }
+        }
+        history
+    }
+
+    pub fn view_receipt_history(env: Env, retainor: Address, retainee: Address, limit: u32) -> Vec<Receipt> {
         let index = get_history_index(&env, &retainor, &retainee);
         if index < 1 {
-            return history;
+            return Vec::new(&env);
         }
         if limit > 0 && index > limit {
-            for i in (index - limit + 1)..=index {
-                match get_receipt(&env, &retainor, &retainee, i) {
-                    Some(receipt) => {
-                        history.push_back(receipt);
-                    }
-                    None => {}
-                }
-            }
-            return history;
+            return Self::view_receipt_history_range(
+                env.clone(),
+                retainor.clone(),
+                retainee.clone(),
+                index - limit + 1,
+                index);
         } else {
-            for i in 1..=index {
-                match get_receipt(&env, &retainor, &retainee, i) {
-                    Some(receipt) => {
-                        history.push_back(receipt);
-                    }
-                    None => {}
-                }
-            }
-            return history;
+            return Self::view_receipt_history_range(
+                env.clone(),
+                retainor.clone(),
+                retainee.clone(),
+                1,
+                index);
         }
     }
 
