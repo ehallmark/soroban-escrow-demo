@@ -153,6 +153,35 @@ pub struct Contract;
 
 #[contractimpl]
 impl Contract {
+
+    pub fn submit_bill(env: Env, retainor: Address, retainee: Address, amount: i128, notes: String, date: String) {
+        retainee.require_auth();
+        check_positive_amount(amount);
+        match get_pending_payment(&env, &retainor, &retainee) {
+            Some(_) => panic!("Pending payment already exists"),
+            None => {}
+        };
+        let retained_balance = match get_retainer_balance(&env, &retainor, &retainee) {
+            Some(balance) => balance,
+            None => panic!("No retained balance"),
+        };
+        if retained_balance.amount < amount {
+            panic!("Insufficient retained balance");
+        }
+        let bill = Bill {
+            amount,
+            notes,
+            date,
+            token: retained_balance.token.clone(),
+        };
+        set_pending_payment(&env, &retainor, &retainee, bill);
+    }
+
+    pub fn unsubmit_bill(env: Env, retainor: Address, retainee: Address) {
+        retainee.require_auth();
+        clear_pending_payment(&env, &retainor, &retainee);
+    }
+
     pub fn resolve_bill(env: Env, retainor: Address, retainee: Address, status: ApprovalStatus, notes: String, date: String) {
         retainor.require_auth();
         let bill = match get_pending_payment(&env, &retainor, &retainee) {
@@ -214,34 +243,6 @@ impl Contract {
             }
             return history;
         }
-    }
-
-    pub fn submit_bill(env: Env, retainor: Address, retainee: Address, amount: i128, notes: String, date: String) {
-        retainee.require_auth();
-        check_positive_amount(amount);
-        match get_pending_payment(&env, &retainor, &retainee) {
-            Some(_) => panic!("Pending payment already exists"),
-            None => {}
-        };
-        let retained_balance = match get_retainer_balance(&env, &retainor, &retainee) {
-            Some(balance) => balance,
-            None => panic!("No retained balance"),
-        };
-        if retained_balance.amount < amount {
-            panic!("Insufficient retained balance");
-        }
-        let bill = Bill {
-            amount,
-            notes,
-            date,
-            token: retained_balance.token.clone(),
-        };
-        set_pending_payment(&env, &retainor, &retainee, bill);
-    }
-
-    pub fn unsubmit_bill(env: Env, retainor: Address, retainee: Address) {
-        retainee.require_auth();
-        clear_pending_payment(&env, &retainor, &retainee);
     }
 
     pub fn retainer_balance(env: Env, retainor: Address, retainee: Address) -> Option<RetainerBalance> {
