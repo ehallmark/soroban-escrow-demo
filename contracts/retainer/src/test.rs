@@ -115,6 +115,31 @@ fn test_submit_bill_without_retained_balance() {
 }
 
 #[test]
+#[should_panic(expected = "Token mismatch")]
+fn test_add_retainer_balance_token_mismatch() {
+    let RetainerTest { env, retainor, retainee, contract, token } = RetainerTest::setup();
+
+    contract.add_retainer_balance(&retainor, &retainee, &99, &token.address);
+    contract.add_retainer_balance(&retainor, &retainee, &99, &Address::generate(&env));
+}
+
+#[test]
+fn test_add_retainer_balance_twice() {
+    let RetainerTest { retainor, retainee, contract, token, .. } = RetainerTest::setup();
+
+    contract.add_retainer_balance(&retainor, &retainee, &99, &token.address);
+    contract.add_retainer_balance(&retainor, &retainee, &100, &token.address);
+
+    assert_eq!(
+        contract.retainer_balance(&retainor, &retainee),
+        Some(RetainerBalance {
+            amount: 199,
+            token: token.address.clone(),
+        })
+    );
+}
+
+#[test]
 #[should_panic(expected = "Insufficient retained balance")]
 fn test_submit_bill_insufficient_retained_balance() {
     let RetainerTest { env, retainor, retainee, contract, token } = RetainerTest::setup();
