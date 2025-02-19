@@ -34,7 +34,7 @@ if (typeof window !== 'undefined') {
 export const networks = {
   testnet: {
     networkPassphrase: "Test SDF Network ; September 2015",
-    contractId: "CCJOF3RCDLOBBVFOVI5XQALQK3C5FK7S6LAJEUGF2MIRA34TV7KBOC3K",
+    contractId: "CCKA3LZJPNBNELAROT45S5VEFEMSDRUPHIMCMD45QMX6JHPGLXSSTZVZ",
   }
 } as const
 
@@ -82,86 +82,6 @@ export const Errors = {
 
 export interface Client {
   /**
-   * Construct and simulate a resolve_bill transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-   */
-  resolve_bill: ({retainor, retainee, status, notes, date}: {retainor: string, retainee: string, status: ApprovalStatus, notes: string, date: string}, options?: {
-    /**
-     * The fee to pay for the transaction. Default: BASE_FEE
-     */
-    fee?: number;
-
-    /**
-     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
-     */
-    timeoutInSeconds?: number;
-
-    /**
-     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
-     */
-    simulate?: boolean;
-  }) => Promise<AssembledTransaction<null>>
-
-  /**
-   * Construct and simulate a view_receipt transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-   */
-  view_receipt: ({retainor, retainee, index}: {retainor: string, retainee: string, index: u32}, options?: {
-    /**
-     * The fee to pay for the transaction. Default: BASE_FEE
-     */
-    fee?: number;
-
-    /**
-     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
-     */
-    timeoutInSeconds?: number;
-
-    /**
-     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
-     */
-    simulate?: boolean;
-  }) => Promise<AssembledTransaction<Option<Receipt>>>
-
-  /**
-   * Construct and simulate a view_bill transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-   */
-  view_bill: ({retainor, retainee}: {retainor: string, retainee: string}, options?: {
-    /**
-     * The fee to pay for the transaction. Default: BASE_FEE
-     */
-    fee?: number;
-
-    /**
-     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
-     */
-    timeoutInSeconds?: number;
-
-    /**
-     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
-     */
-    simulate?: boolean;
-  }) => Promise<AssembledTransaction<Option<Bill>>>
-
-  /**
-   * Construct and simulate a view_receipt_history transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-   */
-  view_receipt_history: ({retainor, retainee, limit}: {retainor: string, retainee: string, limit: u32}, options?: {
-    /**
-     * The fee to pay for the transaction. Default: BASE_FEE
-     */
-    fee?: number;
-
-    /**
-     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
-     */
-    timeoutInSeconds?: number;
-
-    /**
-     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
-     */
-    simulate?: boolean;
-  }) => Promise<AssembledTransaction<Array<Receipt>>>
-
-  /**
    * Construct and simulate a submit_bill transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
   submit_bill: ({retainor, retainee, amount, notes, date}: {retainor: string, retainee: string, amount: i128, notes: string, date: string}, options?: {
@@ -200,6 +120,106 @@ export interface Client {
      */
     simulate?: boolean;
   }) => Promise<AssembledTransaction<null>>
+
+  /**
+   * Construct and simulate a resolve_bill transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  resolve_bill: ({retainor, retainee, status, notes, date}: {retainor: string, retainee: string, status: ApprovalStatus, notes: string, date: string}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<null>>
+
+  /**
+   * Construct and simulate a view_bill transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  view_bill: ({retainor, retainee}: {retainor: string, retainee: string}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<Option<Bill>>>
+
+  /**
+   * Construct and simulate a view_receipt transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  view_receipt: ({retainor, retainee, index}: {retainor: string, retainee: string, index: u32}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<Option<Receipt>>>
+
+  /**
+   * Construct and simulate a history_index transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  history_index: ({retainor, retainee}: {retainor: string, retainee: string}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<u32>>
+
+  /**
+   * Construct and simulate a view_receipt_history transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  view_receipt_history: ({retainor, retainee, limit}: {retainor: string, retainee: string, limit: u32}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<Array<Receipt>>>
 
   /**
    * Construct and simulate a retainer_balance transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
@@ -346,12 +366,13 @@ export class Client extends ContractClient {
         "AAAAAQAAAAAAAAAAAAAAB1JlY2VpcHQAAAAABAAAAAAAAAAEYmlsbAAAB9AAAAAEQmlsbAAAAAAAAAAEZGF0ZQAAABAAAAAAAAAABW5vdGVzAAAAAAAAEAAAAAAAAAAGc3RhdHVzAAAAAAfQAAAADkFwcHJvdmFsU3RhdHVzAAA=",
         "AAAAAQAAAAAAAAAAAAAADFJldGFpbmVlSW5mbwAAAAIAAAAAAAAABG5hbWUAAAAQAAAAAAAAAAlyZXRhaW5vcnMAAAAAAAPqAAAAEw==",
         "AAAAAQAAAAAAAAAAAAAADFJldGFpbm9ySW5mbwAAAAIAAAAAAAAABG5hbWUAAAAQAAAAAAAAAAlyZXRhaW5lZXMAAAAAAAPqAAAAEw==",
-        "AAAAAAAAAAAAAAAMcmVzb2x2ZV9iaWxsAAAABQAAAAAAAAAIcmV0YWlub3IAAAATAAAAAAAAAAhyZXRhaW5lZQAAABMAAAAAAAAABnN0YXR1cwAAAAAH0AAAAA5BcHByb3ZhbFN0YXR1cwAAAAAAAAAAAAVub3RlcwAAAAAAABAAAAAAAAAABGRhdGUAAAAQAAAAAA==",
-        "AAAAAAAAAAAAAAAMdmlld19yZWNlaXB0AAAAAwAAAAAAAAAIcmV0YWlub3IAAAATAAAAAAAAAAhyZXRhaW5lZQAAABMAAAAAAAAABWluZGV4AAAAAAAABAAAAAEAAAPoAAAH0AAAAAdSZWNlaXB0AA==",
-        "AAAAAAAAAAAAAAAJdmlld19iaWxsAAAAAAAAAgAAAAAAAAAIcmV0YWlub3IAAAATAAAAAAAAAAhyZXRhaW5lZQAAABMAAAABAAAD6AAAB9AAAAAEQmlsbA==",
-        "AAAAAAAAAAAAAAAUdmlld19yZWNlaXB0X2hpc3RvcnkAAAADAAAAAAAAAAhyZXRhaW5vcgAAABMAAAAAAAAACHJldGFpbmVlAAAAEwAAAAAAAAAFbGltaXQAAAAAAAAEAAAAAQAAA+oAAAfQAAAAB1JlY2VpcHQA",
         "AAAAAAAAAAAAAAALc3VibWl0X2JpbGwAAAAABQAAAAAAAAAIcmV0YWlub3IAAAATAAAAAAAAAAhyZXRhaW5lZQAAABMAAAAAAAAABmFtb3VudAAAAAAACwAAAAAAAAAFbm90ZXMAAAAAAAAQAAAAAAAAAARkYXRlAAAAEAAAAAA=",
         "AAAAAAAAAAAAAAANdW5zdWJtaXRfYmlsbAAAAAAAAAIAAAAAAAAACHJldGFpbm9yAAAAEwAAAAAAAAAIcmV0YWluZWUAAAATAAAAAA==",
+        "AAAAAAAAAAAAAAAMcmVzb2x2ZV9iaWxsAAAABQAAAAAAAAAIcmV0YWlub3IAAAATAAAAAAAAAAhyZXRhaW5lZQAAABMAAAAAAAAABnN0YXR1cwAAAAAH0AAAAA5BcHByb3ZhbFN0YXR1cwAAAAAAAAAAAAVub3RlcwAAAAAAABAAAAAAAAAABGRhdGUAAAAQAAAAAA==",
+        "AAAAAAAAAAAAAAAJdmlld19iaWxsAAAAAAAAAgAAAAAAAAAIcmV0YWlub3IAAAATAAAAAAAAAAhyZXRhaW5lZQAAABMAAAABAAAD6AAAB9AAAAAEQmlsbA==",
+        "AAAAAAAAAAAAAAAMdmlld19yZWNlaXB0AAAAAwAAAAAAAAAIcmV0YWlub3IAAAATAAAAAAAAAAhyZXRhaW5lZQAAABMAAAAAAAAABWluZGV4AAAAAAAABAAAAAEAAAPoAAAH0AAAAAdSZWNlaXB0AA==",
+        "AAAAAAAAAAAAAAANaGlzdG9yeV9pbmRleAAAAAAAAAIAAAAAAAAACHJldGFpbm9yAAAAEwAAAAAAAAAIcmV0YWluZWUAAAATAAAAAQAAAAQ=",
+        "AAAAAAAAAAAAAAAUdmlld19yZWNlaXB0X2hpc3RvcnkAAAADAAAAAAAAAAhyZXRhaW5vcgAAABMAAAAAAAAACHJldGFpbmVlAAAAEwAAAAAAAAAFbGltaXQAAAAAAAAEAAAAAQAAA+oAAAfQAAAAB1JlY2VpcHQA",
         "AAAAAAAAAAAAAAAQcmV0YWluZXJfYmFsYW5jZQAAAAIAAAAAAAAACHJldGFpbm9yAAAAEwAAAAAAAAAIcmV0YWluZWUAAAATAAAAAQAAA+gAAAfQAAAAD1JldGFpbmVyQmFsYW5jZQA=",
         "AAAAAAAAAAAAAAAUYWRkX3JldGFpbmVyX2JhbGFuY2UAAAAEAAAAAAAAAAhyZXRhaW5vcgAAABMAAAAAAAAACHJldGFpbmVlAAAAEwAAAAAAAAARYWRkaXRpb25hbF9hbW91bnQAAAAAAAALAAAAAAAAAAV0b2tlbgAAAAAAABMAAAAA",
         "AAAAAAAAAAAAAAANcmV0YWluZWVfaW5mbwAAAAAAAAEAAAAAAAAACHJldGFpbmVlAAAAEwAAAAEAAAfQAAAADFJldGFpbmVlSW5mbw==",
@@ -362,12 +383,13 @@ export class Client extends ContractClient {
     )
   }
   public readonly fromJSON = {
-    resolve_bill: this.txFromJSON<null>,
-        view_receipt: this.txFromJSON<Option<Receipt>>,
-        view_bill: this.txFromJSON<Option<Bill>>,
-        view_receipt_history: this.txFromJSON<Array<Receipt>>,
-        submit_bill: this.txFromJSON<null>,
+    submit_bill: this.txFromJSON<null>,
         unsubmit_bill: this.txFromJSON<null>,
+        resolve_bill: this.txFromJSON<null>,
+        view_bill: this.txFromJSON<Option<Bill>>,
+        view_receipt: this.txFromJSON<Option<Receipt>>,
+        history_index: this.txFromJSON<u32>,
+        view_receipt_history: this.txFromJSON<Array<Receipt>>,
         retainer_balance: this.txFromJSON<Option<RetainerBalance>>,
         add_retainer_balance: this.txFromJSON<null>,
         retainee_info: this.txFromJSON<RetaineeInfo>,
