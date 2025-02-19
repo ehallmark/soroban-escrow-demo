@@ -70,6 +70,7 @@ function deploy(wasm) {
   } else {
     let contract_id = exeReturn(`${cli} contract deploy --wasm-hash ${wasm_hash} ${stellar_args} --alias ${name}`);
     console.log(`Deployed ${name} with contract_id ${contract_id}`);
+    hashToContractId = {};
     hashToContractId[wasm_hash] = contract_id;
   }
   globalHashToContractId[process.env.STELLAR_NETWORK_PASSPHRASE] = hashToContractId;

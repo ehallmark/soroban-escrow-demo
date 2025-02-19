@@ -278,6 +278,23 @@ impl Contract {
         set_retainer_balance(&env, &retainor, &retainee, retainer_balance);
     }
 
+    pub fn remove_retainer_balance(env: Env, retainor: Address, retainee: Address, amount: i128) {
+        retainor.require_auth();
+        check_positive_amount(amount);
+        if get_pending_payment(&env, &retainor, &retainee).is_some() {
+            panic!("Pending payment exists");
+        }
+        let mut retainer_balance = get_retainer_balance(&env, &retainor, &retainee).unwrap();
+        if retainer_balance.amount < amount {
+            panic!("Insufficient retained balance");
+        }
+        retainer_balance.amount = retainer_balance.amount.checked_sub(amount).unwrap();
+        // transfer tokens to retainee
+        token::Client::new(&env, &retainer_balance.token).transfer(&env.current_contract_address(), &retainor, &amount);
+        // update state
+        set_retainer_balance(&env, &retainor, &retainee, retainer_balance);
+    }
+
     pub fn retainee_info(env: Env, retainee: Address) -> RetaineeInfo {
         get_retainee_info(&env, &retainee).unwrap()
     }

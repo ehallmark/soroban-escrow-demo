@@ -155,6 +155,68 @@ fn test_submit_bill_insufficient_retained_balance() {
 }
 
 #[test]
+#[should_panic(expected = "Insufficient retained balance")]
+fn test_remove_retainer_balance_insufficient_retained_balance() {
+    let RetainerTest { retainor, retainee, contract, token, .. } = RetainerTest::setup();
+
+    contract.add_retainer_balance(&retainor, &retainee, &99, &token.address);
+    assert_eq!(
+        contract.retainer_balance(&retainor, &retainee),
+        Some(RetainerBalance {
+            amount: 99,
+            token: token.address.clone(),
+        })
+    );
+    contract.remove_retainer_balance(&retainor, &retainee, &100);
+}
+
+#[test]
+#[should_panic(expected = "Insufficient retained balance")]
+fn test_remove_retainer_balance_pending_payment_exists() {
+    let RetainerTest { env, retainor, retainee, contract, token } = RetainerTest::setup();
+
+    contract.add_retainer_balance(&retainor, &retainee, &99, &token.address);
+    assert_eq!(
+        contract.retainer_balance(&retainor, &retainee),
+        Some(RetainerBalance {
+            amount: 99,
+            token: token.address.clone(),
+        })
+    );
+
+    contract.submit_bill(&retainor, 
+                            &retainee, 
+                            &100, 
+                            &str(&env, "Bill 1"), 
+                            &str(&env, "2021-01-01T00:00:00Z"));
+    contract.remove_retainer_balance(&retainor, &retainee, &99);
+}
+
+#[test]
+fn test_remove_retainer_balance() {
+    let RetainerTest { retainor, retainee, contract, token, .. } = RetainerTest::setup();
+
+    contract.add_retainer_balance(&retainor, &retainee, &99, &token.address);
+    assert_eq!(
+        contract.retainer_balance(&retainor, &retainee),
+        Some(RetainerBalance {
+            amount: 99,
+            token: token.address.clone(),
+        })
+    );
+    assert_eq!(token.balance(&retainor), 9_901);
+    assert_eq!(token.balance(&contract.address), 99);
+    assert_eq!(token.balance(&retainee), 0);
+
+    contract.remove_retainer_balance(&retainor, &retainee, &99);
+
+    assert_eq!(token.balance(&retainor), 10_000);
+    assert_eq!(token.balance(&contract.address), 0);
+    assert_eq!(token.balance(&retainee), 0);
+
+}
+
+#[test]
 #[should_panic(expected = "Pending payment already exists")]
 fn test_submit_bill_pending_payment_exists() {
     let RetainerTest { env, retainor, retainee, contract, token } = RetainerTest::setup();

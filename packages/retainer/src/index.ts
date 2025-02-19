@@ -34,7 +34,7 @@ if (typeof window !== 'undefined') {
 export const networks = {
   testnet: {
     networkPassphrase: "Test SDF Network ; September 2015",
-    contractId: "CAH37W4HRLVSSJXCLX6YAOY2IIMBECWSCQ4VY6UFWWAPDFSDXSPKO5TM",
+    contractId: "CAE7VNCGC4JGRQ3DHL2YYJ3VR4MYPSTR37GOAKGQQQN4W7G6VAYQS5LZ",
   }
 } as const
 
@@ -202,6 +202,26 @@ export interface Client {
   }) => Promise<AssembledTransaction<u32>>
 
   /**
+   * Construct and simulate a view_receipt_history_range transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  view_receipt_history_range: ({retainor, retainee, start, end}: {retainor: string, retainee: string, start: u32, end: u32}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<Array<Receipt>>>
+
+  /**
    * Construct and simulate a view_receipt_history transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
   view_receipt_history: ({retainor, retainee, limit}: {retainor: string, retainee: string, limit: u32}, options?: {
@@ -262,6 +282,26 @@ export interface Client {
   }) => Promise<AssembledTransaction<null>>
 
   /**
+   * Construct and simulate a remove_retainer_balance transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  remove_retainer_balance: ({retainor, retainee, amount}: {retainor: string, retainee: string, amount: i128}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<null>>
+
+  /**
    * Construct and simulate a retainee_info transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
   retainee_info: ({retainee}: {retainee: string}, options?: {
@@ -299,7 +339,7 @@ export interface Client {
      * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
      */
     simulate?: boolean;
-  }) => Promise<AssembledTransaction<RetaineeInfo>>
+  }) => Promise<AssembledTransaction<null>>
 
   /**
    * Construct and simulate a retainor_info transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
@@ -372,11 +412,13 @@ export class Client extends ContractClient {
         "AAAAAAAAAAAAAAAJdmlld19iaWxsAAAAAAAAAgAAAAAAAAAIcmV0YWlub3IAAAATAAAAAAAAAAhyZXRhaW5lZQAAABMAAAABAAAD6AAAB9AAAAAEQmlsbA==",
         "AAAAAAAAAAAAAAAMdmlld19yZWNlaXB0AAAAAwAAAAAAAAAIcmV0YWlub3IAAAATAAAAAAAAAAhyZXRhaW5lZQAAABMAAAAAAAAABWluZGV4AAAAAAAABAAAAAEAAAPoAAAH0AAAAAdSZWNlaXB0AA==",
         "AAAAAAAAAAAAAAANaGlzdG9yeV9pbmRleAAAAAAAAAIAAAAAAAAACHJldGFpbm9yAAAAEwAAAAAAAAAIcmV0YWluZWUAAAATAAAAAQAAAAQ=",
+        "AAAAAAAAAAAAAAAadmlld19yZWNlaXB0X2hpc3RvcnlfcmFuZ2UAAAAAAAQAAAAAAAAACHJldGFpbm9yAAAAEwAAAAAAAAAIcmV0YWluZWUAAAATAAAAAAAAAAVzdGFydAAAAAAAAAQAAAAAAAAAA2VuZAAAAAAEAAAAAQAAA+oAAAfQAAAAB1JlY2VpcHQA",
         "AAAAAAAAAAAAAAAUdmlld19yZWNlaXB0X2hpc3RvcnkAAAADAAAAAAAAAAhyZXRhaW5vcgAAABMAAAAAAAAACHJldGFpbmVlAAAAEwAAAAAAAAAFbGltaXQAAAAAAAAEAAAAAQAAA+oAAAfQAAAAB1JlY2VpcHQA",
         "AAAAAAAAAAAAAAAQcmV0YWluZXJfYmFsYW5jZQAAAAIAAAAAAAAACHJldGFpbm9yAAAAEwAAAAAAAAAIcmV0YWluZWUAAAATAAAAAQAAA+gAAAfQAAAAD1JldGFpbmVyQmFsYW5jZQA=",
         "AAAAAAAAAAAAAAAUYWRkX3JldGFpbmVyX2JhbGFuY2UAAAAEAAAAAAAAAAhyZXRhaW5vcgAAABMAAAAAAAAACHJldGFpbmVlAAAAEwAAAAAAAAARYWRkaXRpb25hbF9hbW91bnQAAAAAAAALAAAAAAAAAAV0b2tlbgAAAAAAABMAAAAA",
+        "AAAAAAAAAAAAAAAXcmVtb3ZlX3JldGFpbmVyX2JhbGFuY2UAAAAAAwAAAAAAAAAIcmV0YWlub3IAAAATAAAAAAAAAAhyZXRhaW5lZQAAABMAAAAAAAAABmFtb3VudAAAAAAACwAAAAA=",
         "AAAAAAAAAAAAAAANcmV0YWluZWVfaW5mbwAAAAAAAAEAAAAAAAAACHJldGFpbmVlAAAAEwAAAAEAAAfQAAAADFJldGFpbmVlSW5mbw==",
-        "AAAAAAAAAAAAAAARc2V0X3JldGFpbmVlX2luZm8AAAAAAAADAAAAAAAAAAhyZXRhaW5lZQAAABMAAAAAAAAABG5hbWUAAAAQAAAAAAAAAAlyZXRhaW5vcnMAAAAAAAPqAAAAEwAAAAEAAAfQAAAADFJldGFpbmVlSW5mbw==",
+        "AAAAAAAAAAAAAAARc2V0X3JldGFpbmVlX2luZm8AAAAAAAADAAAAAAAAAAhyZXRhaW5lZQAAABMAAAAAAAAABG5hbWUAAAAQAAAAAAAAAAlyZXRhaW5vcnMAAAAAAAPqAAAAEwAAAAA=",
         "AAAAAAAAAAAAAAANcmV0YWlub3JfaW5mbwAAAAAAAAEAAAAAAAAACHJldGFpbm9yAAAAEwAAAAEAAAfQAAAADFJldGFpbm9ySW5mbw==",
         "AAAAAAAAAAAAAAARc2V0X3JldGFpbm9yX2luZm8AAAAAAAADAAAAAAAAAAhyZXRhaW5vcgAAABMAAAAAAAAABG5hbWUAAAAQAAAAAAAAAAlyZXRhaW5lZXMAAAAAAAPqAAAAEwAAAAA=" ]),
       options
@@ -389,11 +431,13 @@ export class Client extends ContractClient {
         view_bill: this.txFromJSON<Option<Bill>>,
         view_receipt: this.txFromJSON<Option<Receipt>>,
         history_index: this.txFromJSON<u32>,
+        view_receipt_history_range: this.txFromJSON<Array<Receipt>>,
         view_receipt_history: this.txFromJSON<Array<Receipt>>,
         retainer_balance: this.txFromJSON<Option<RetainerBalance>>,
         add_retainer_balance: this.txFromJSON<null>,
+        remove_retainer_balance: this.txFromJSON<null>,
         retainee_info: this.txFromJSON<RetaineeInfo>,
-        set_retainee_info: this.txFromJSON<RetaineeInfo>,
+        set_retainee_info: this.txFromJSON<null>,
         retainor_info: this.txFromJSON<RetainorInfo>,
         set_retainor_info: this.txFromJSON<null>
   }
