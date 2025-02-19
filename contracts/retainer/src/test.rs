@@ -605,3 +605,115 @@ fn test_multiple_retainees() {
         })
     );
 }
+
+
+#[test]
+fn test_multiple_retainors() {
+    let RetainerTest { env, retainor, retainee, contract, token } = RetainerTest::setup();
+    
+    let retainor2 = Address::generate(&env);
+    
+    token.transfer(&retainor, &retainor2, &4_000);
+    
+    assert_eq!(token.balance(&retainor), 6_000);
+    assert_eq!(token.balance(&retainor2), 4_000);
+
+    contract.add_retainer_balance(&retainor, &retainee, &100, &token.address);
+    contract.add_retainer_balance(&retainor2, &retainee, &200, &token.address);
+
+    // verify balances
+    assert_eq!(token.balance(&retainor), 5_900);
+    assert_eq!(token.balance(&retainee), 0);
+    assert_eq!(token.balance(&retainor2), 3_800);
+    assert_eq!(token.balance(&contract.address), 300);
+
+    contract.submit_bill(&retainor, 
+                            &retainee, 
+                            &50, 
+                            &str(&env, "R1 Bill 1"), 
+                            &str(&env, "2021-01-01T00:00:00Z"));
+
+    contract.resolve_bill(&retainor, 
+                            &retainee, 
+                            &ApprovalStatus::Approved,
+                            &str(&env, "R1 Bill 1 resolved"),
+                            &str(&env, "2021-01-01T00:00:00Z"));
+    
+    contract.submit_bill(&retainor2, 
+                            &retainee, 
+                            &25, 
+                            &str(&env, "R2 Bill 1"), 
+                            &str(&env, "2021-01-01T00:00:00Z"));
+
+    contract.resolve_bill(&retainor2, 
+                            &retainee, 
+                            &ApprovalStatus::Approved,
+                            &str(&env, "R2 Bill 1 resolved"),
+                            &str(&env, "2021-01-01T00:00:00Z"));
+    
+    // verify balances
+    assert_eq!(token.balance(&retainor), 5_900);
+    assert_eq!(token.balance(&retainor2), 3_800);
+    assert_eq!(token.balance(&retainee), 75);
+    assert_eq!(token.balance(&contract.address), 225);
+
+    // check final state
+    assert_eq!(contract.view_bill(&retainor, &retainee), None);
+    assert_eq!(contract.view_bill(&retainor2, &retainee), None);
+    assert_eq!(
+        contract.retainer_balance(&retainor, &retainee),
+        Some(RetainerBalance {
+            amount: 50,
+            token: token.address.clone(),
+        })
+    );
+    assert_eq!(
+        contract.retainer_balance(&retainor2, &retainee),
+        Some(RetainerBalance {
+            amount: 175,
+            token: token.address.clone(),
+        })
+    );
+    assert_eq!(
+        contract.view_receipt_history(&retainor, 
+                                        &retainee, 
+                                        &0).len(),
+        1
+    );
+    assert_eq!(
+        contract.view_receipt_history(&retainor2, 
+                                        &retainee, 
+                                        &0).len(),
+        1
+    );
+    assert_eq!(contract.history_index(&retainor, &retainee), 1);
+    assert_eq!(contract.history_index(&retainor2, &retainee), 1);
+    assert_eq!(
+        contract.view_receipt(&retainor, &retainee, &1),
+        Some(Receipt {
+            bill: Bill {
+                amount: 50,
+                notes: str(&env, "R1 Bill 1"),
+                date: str(&env, "2021-01-01T00:00:00Z"),
+                token: token.address.clone(),
+            },
+            notes: str(&env, "R1 Bill 1 resolved"),
+            date: str(&env, "2021-01-01T00:00:00Z"),
+            status: ApprovalStatus::Approved,
+        })
+    );
+    assert_eq!(
+        contract.view_receipt(&retainor2, &retainee, &1),
+        Some(Receipt {
+            bill: Bill {
+                amount: 25,
+                notes: str(&env, "R2 Bill 1"),
+                date: str(&env, "2021-01-01T00:00:00Z"),
+                token: token.address.clone(),
+            },
+            notes: str(&env, "R2 Bill 1 resolved"),
+            date: str(&env, "2021-01-01T00:00:00Z"),
+            status: ApprovalStatus::Approved,
+        })
+    );
+}
