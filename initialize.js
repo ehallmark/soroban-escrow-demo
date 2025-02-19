@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { mkdirSync, writeFileSync, rmSync, readFileSync } from 'fs';
+import { mkdirSync, writeFileSync, rmSync, readFileSync, existsSync } from 'fs';
 import { execSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -19,7 +19,7 @@ console.log('###################### Initializing ########################');
 const __filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(__filename);
 const contractsDir = `${dirname}/.stellar/contract-ids`;
-
+const hashToContractIdMapping = `${dirname}/.wasm-hash-to-contract-id.json`;
 // variable for later setting pinned version of soroban in "$(dirname/target/bin/soroban)"
 const cli = 'stellar';
 
@@ -27,6 +27,11 @@ const cli = 'stellar';
 function exe(command) {
   console.log(command);
   execSync(command, { stdio: 'inherit' });
+}
+
+function exeReturn(command) {
+  console.log(command);
+  return execSync(command).toString().trim();
 }
 
 function fundAll() {
@@ -50,7 +55,25 @@ function filenameNoExtension(filename) {
 
 function deploy(wasm) {
   let name = filenameNoExtension(wasm);
-  exe(`${cli} contract deploy --wasm ${wasm} --ignore-checks --alias ${name} -- --admin ${process.env.STELLAR_ACCOUNT_ADDRESS}`);
+  let stellar_args = `--source-account ${process.env.STELLAR_ACCOUNT} --network ${process.env.STELLAR_NETWORK}`;
+  let wasm_hash = exeReturn(`${cli} contract install --wasm ${wasm} ${stellar_args}`);
+  console.log(`Installed ${name} with hash ${wasm_hash}`);  
+  // check if file exists
+  let hashToContractId = {};
+  let globalHashToContractId = {};
+  if (existsSync(hashToContractIdMapping)) {
+    globalHashToContractId = JSON.parse(readFileSync(hashToContractIdMapping));
+    hashToContractId = globalHashToContractId[process.env.STELLAR_NETWORK_PASSPHRASE];
+  }
+  if (wasm_hash in hashToContractId) {
+    console.log(`Contract ${name} already deployed with contract_id ${hashToContractId[wasm_hash]}`);
+  } else {
+    let contract_id = exeReturn(`${cli} contract deploy --wasm-hash ${wasm_hash} ${stellar_args} --alias ${name}`);
+    console.log(`Deployed ${name} with contract_id ${contract_id}`);
+    hashToContractId[wasm_hash] = contract_id;
+  }
+  globalHashToContractId[process.env.STELLAR_NETWORK_PASSPHRASE] = hashToContractId;
+  writeFileSync(hashToContractIdMapping, JSON.stringify(globalHashToContractId, null, 2));
 }
 
 function deployAll() {
