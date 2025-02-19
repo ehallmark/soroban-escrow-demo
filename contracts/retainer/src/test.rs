@@ -91,14 +91,8 @@ fn test_setup() {
     );
 
     // Check initial token balances
-    assert_eq!(
-        token.balance(&retainor),
-        10_000
-    );
-    assert_eq!(
-        token.balance(&retainee),
-        0
-    );
+    assert_eq!(token.balance(&retainor), 10_000);
+    assert_eq!(token.balance(&retainee), 0);
 }
 
 
@@ -222,10 +216,7 @@ fn test_resubmit_bill() {
     );
 
     contract.unsubmit_bill(&retainor, &retainee);
-    assert_eq!(
-        contract.view_bill(&retainor, &retainee),
-        None
-    );
+    assert_eq!(contract.view_bill(&retainor, &retainee), None);
 
     contract.submit_bill(&retainor, 
                             &retainee, 
@@ -279,18 +270,9 @@ fn test_resolve_bill_approved() {
         })
     );
 
-    assert_eq!(
-        token.balance(&retainor),
-        9_900
-    );
-    assert_eq!(
-        token.balance(&contract.address),
-        100
-    );
-    assert_eq!(
-        token.balance(&retainee),
-        0
-    );
+    assert_eq!(token.balance(&retainor), 9_900);
+    assert_eq!(token.balance(&contract.address), 100);
+    assert_eq!(token.balance(&retainee), 0);
 
     contract.submit_bill(&retainor, 
                             &retainee, 
@@ -305,23 +287,11 @@ fn test_resolve_bill_approved() {
                             &str(&env, "2021-01-01T00:00:00Z"));
     
     // verify balances
-    assert_eq!(
-        token.balance(&retainor),
-        9_900
-    );
-    assert_eq!(
-        token.balance(&retainee),
-        49
-    );
-    assert_eq!(
-        token.balance(&contract.address),
-        51
-    );
+    assert_eq!(token.balance(&retainor), 9_900);
+    assert_eq!(token.balance(&retainee), 49);
+    assert_eq!(token.balance(&contract.address), 51);
     // check final state
-        assert_eq!(
-        contract.view_bill(&retainor, &retainee),
-        None
-    );
+    assert_eq!(contract.view_bill(&retainor, &retainee), None);
     assert_eq!(
         contract.retainer_balance(&retainor, &retainee),
         Some(RetainerBalance {
@@ -345,10 +315,7 @@ fn test_resolve_bill_approved() {
             status: ApprovalStatus::Approved,
         }]
     );
-    assert_eq!(
-        contract.history_index(&retainor, &retainee),
-        1
-    );
+    assert_eq!(contract.history_index(&retainor, &retainee), 1);
     assert_eq!(
         contract.view_receipt(&retainor, &retainee, &1),
         Some(Receipt {
@@ -379,18 +346,9 @@ fn test_resolve_bill_denied() {
         })
     );
 
-    assert_eq!(
-        token.balance(&retainor),
-        9_900
-    );
-    assert_eq!(
-        token.balance(&contract.address),
-        100
-    );
-    assert_eq!(
-        token.balance(&retainee),
-        0
-    );
+    assert_eq!(token.balance(&retainor), 9_900);
+    assert_eq!(token.balance(&contract.address), 100);
+    assert_eq!(token.balance(&retainee), 0);
 
     contract.submit_bill(&retainor, 
                             &retainee, 
@@ -405,23 +363,11 @@ fn test_resolve_bill_denied() {
                             &str(&env, "2021-01-01T00:00:00Z"));
     
     // verify balances
-    assert_eq!(
-        token.balance(&retainor),
-        9_900
-    );
-    assert_eq!(
-        token.balance(&retainee),
-        0
-    );
-    assert_eq!(
-        token.balance(&contract.address),
-        100
-    );
+    assert_eq!(token.balance(&retainor), 9_900);
+    assert_eq!(token.balance(&retainee), 0);
+    assert_eq!(token.balance(&contract.address), 100);
     // check final state
-        assert_eq!(
-        contract.view_bill(&retainor, &retainee),
-        None
-    );
+    assert_eq!(contract.view_bill(&retainor, &retainee), None);
     assert_eq!(
         contract.retainer_balance(&retainor, &retainee),
         Some(RetainerBalance {
@@ -445,10 +391,7 @@ fn test_resolve_bill_denied() {
             status: ApprovalStatus::Denied,
         }]
     );
-    assert_eq!(
-        contract.history_index(&retainor, &retainee),
-        1
-    );
+    assert_eq!(contract.history_index(&retainor, &retainee), 1);
     assert_eq!(
         contract.view_receipt(&retainor, &retainee, &1),
         Some(Receipt {
@@ -461,6 +404,204 @@ fn test_resolve_bill_denied() {
             notes: str(&env, "Bill 1 resolved"),
             date: str(&env, "2021-01-01T00:00:00Z"),
             status: ApprovalStatus::Denied,
+        })
+    );
+}
+
+
+#[test]
+fn test_multiple_bills() {
+    let RetainerTest { env, retainor, retainee, contract, token } = RetainerTest::setup();
+
+    contract.add_retainer_balance(&retainor, &retainee, &100, &token.address);
+
+    contract.submit_bill(&retainor, 
+                            &retainee, 
+                            &50, 
+                            &str(&env, "Bill 1"), 
+                            &str(&env, "2021-01-01T00:00:00Z"));
+
+    contract.resolve_bill(&retainor, 
+                            &retainee, 
+                            &ApprovalStatus::Approved,
+                            &str(&env, "Bill 1 resolved"),
+                            &str(&env, "2021-01-01T00:00:00Z"));
+    
+    contract.submit_bill(&retainor, 
+                            &retainee, 
+                            &25, 
+                            &str(&env, "Bill 2"), 
+                            &str(&env, "2021-01-01T00:00:00Z"));
+
+    contract.resolve_bill(&retainor, 
+                            &retainee, 
+                            &ApprovalStatus::Approved,
+                            &str(&env, "Bill 2 resolved"),
+                            &str(&env, "2021-01-01T00:00:00Z"));
+    
+    // verify balances
+    assert_eq!(token.balance(&retainor), 9_900);
+    assert_eq!(token.balance(&retainee), 75);
+    assert_eq!(token.balance(&contract.address), 25);
+    // check final state
+        assert_eq!(
+        contract.view_bill(&retainor, &retainee),
+        None
+    );
+    assert_eq!(
+        contract.retainer_balance(&retainor, &retainee),
+        Some(RetainerBalance {
+            amount: 25,
+            token: token.address.clone(),
+        })
+    );
+    assert_eq!(
+        contract.view_receipt_history(&retainor, 
+                                        &retainee, 
+                                        &0),
+        vec![&env, 
+            Receipt {
+                bill: Bill {
+                    amount: 50,
+                    notes: str(&env, "Bill 1"),
+                    date: str(&env, "2021-01-01T00:00:00Z"),
+                    token: token.address.clone(),
+                },
+                notes: str(&env, "Bill 1 resolved"),
+                date: str(&env, "2021-01-01T00:00:00Z"),
+                status: ApprovalStatus::Approved,
+            }, 
+            Receipt {
+                bill: Bill {
+                    amount: 25,
+                    notes: str(&env, "Bill 2"),
+                    date: str(&env, "2021-01-01T00:00:00Z"),
+                    token: token.address.clone(),
+                },
+                notes: str(&env, "Bill 2 resolved"),
+                date: str(&env, "2021-01-01T00:00:00Z"),
+                status: ApprovalStatus::Approved,
+            }]
+    );
+    assert_eq!(contract.history_index(&retainor, &retainee), 2);
+    assert_eq!(
+        contract.view_receipt(&retainor, &retainee, &2),
+        Some(Receipt {
+            bill: Bill {
+                amount: 25,
+                notes: str(&env, "Bill 2"),
+                date: str(&env, "2021-01-01T00:00:00Z"),
+                token: token.address.clone(),
+            },
+            notes: str(&env, "Bill 2 resolved"),
+            date: str(&env, "2021-01-01T00:00:00Z"),
+            status: ApprovalStatus::Approved,
+        })
+    );
+}
+
+
+#[test]
+fn test_multiple_retainees() {
+    let RetainerTest { env, retainor, retainee, contract, token } = RetainerTest::setup();
+    let retainee2 = Address::generate(&env);
+
+    contract.add_retainer_balance(&retainor, &retainee, &100, &token.address);
+    contract.add_retainer_balance(&retainor, &retainee2, &200, &token.address);
+
+    // verify balances
+    assert_eq!(token.balance(&retainor), 9_700);
+    assert_eq!(token.balance(&retainee), 0);
+    assert_eq!(token.balance(&retainee2), 0);
+    assert_eq!(token.balance(&contract.address), 300);
+
+    contract.submit_bill(&retainor, 
+                            &retainee, 
+                            &50, 
+                            &str(&env, "R1 Bill 1"), 
+                            &str(&env, "2021-01-01T00:00:00Z"));
+
+    contract.resolve_bill(&retainor, 
+                            &retainee, 
+                            &ApprovalStatus::Approved,
+                            &str(&env, "R1 Bill 1 resolved"),
+                            &str(&env, "2021-01-01T00:00:00Z"));
+    
+    contract.submit_bill(&retainor, 
+                            &retainee2, 
+                            &25, 
+                            &str(&env, "R2 Bill 1"), 
+                            &str(&env, "2021-01-01T00:00:00Z"));
+
+    contract.resolve_bill(&retainor, 
+                            &retainee2, 
+                            &ApprovalStatus::Approved,
+                            &str(&env, "R2 Bill 1 resolved"),
+                            &str(&env, "2021-01-01T00:00:00Z"));
+    
+    // verify balances
+    assert_eq!(token.balance(&retainor), 9_700);
+    assert_eq!(token.balance(&retainee), 50);
+    assert_eq!(token.balance(&retainee2), 25);
+    assert_eq!(token.balance(&contract.address), 225);
+
+    // check final state
+    assert_eq!(contract.view_bill(&retainor, &retainee), None);
+    assert_eq!(contract.view_bill(&retainor, &retainee2), None);
+    assert_eq!(
+        contract.retainer_balance(&retainor, &retainee),
+        Some(RetainerBalance {
+            amount: 50,
+            token: token.address.clone(),
+        })
+    );
+    assert_eq!(
+        contract.retainer_balance(&retainor, &retainee2),
+        Some(RetainerBalance {
+            amount: 175,
+            token: token.address.clone(),
+        })
+    );
+    assert_eq!(
+        contract.view_receipt_history(&retainor, 
+                                        &retainee, 
+                                        &0).len(),
+        1
+    );
+    assert_eq!(
+        contract.view_receipt_history(&retainor, 
+                                        &retainee2, 
+                                        &0).len(),
+        1
+    );
+    assert_eq!(contract.history_index(&retainor, &retainee), 1);
+    assert_eq!(contract.history_index(&retainor, &retainee2), 1);
+    assert_eq!(
+        contract.view_receipt(&retainor, &retainee, &1),
+        Some(Receipt {
+            bill: Bill {
+                amount: 50,
+                notes: str(&env, "R1 Bill 1"),
+                date: str(&env, "2021-01-01T00:00:00Z"),
+                token: token.address.clone(),
+            },
+            notes: str(&env, "R1 Bill 1 resolved"),
+            date: str(&env, "2021-01-01T00:00:00Z"),
+            status: ApprovalStatus::Approved,
+        })
+    );
+    assert_eq!(
+        contract.view_receipt(&retainor, &retainee2, &1),
+        Some(Receipt {
+            bill: Bill {
+                amount: 25,
+                notes: str(&env, "R2 Bill 1"),
+                date: str(&env, "2021-01-01T00:00:00Z"),
+                token: token.address.clone(),
+            },
+            notes: str(&env, "R2 Bill 1 resolved"),
+            date: str(&env, "2021-01-01T00:00:00Z"),
+            status: ApprovalStatus::Approved,
         })
     );
 }
