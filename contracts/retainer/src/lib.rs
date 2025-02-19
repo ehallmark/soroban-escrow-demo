@@ -70,9 +70,11 @@ fn check_positive_amount(amount: i128) {
 }
 
 fn get_retainer_balance(env: &Env, retainor: &Address, retainee: &Address) -> Option<RetainerBalance> {
-    env.storage()
+    let key = StorageKey::Retainer(retainor.clone(), retainee.clone());
+    let res = env.storage()
         .persistent()
-        .get::<_, RetainerBalance>(&StorageKey::Retainer(retainor.clone(), retainee.clone()))
+        .get::<_, RetainerBalance>(&key);
+    res
 }
 
 fn get_pending_payment(env: &Env, retainor: &Address, retainee: &Address) -> Option<Bill> {
