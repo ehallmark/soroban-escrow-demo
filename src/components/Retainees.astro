@@ -1,0 +1,32 @@
+<strong>Retainees</strong><br />
+<p id="retainees" style="display: none">Something...</p>
+
+<script>
+    import { signTransaction } from "../stellar-wallets-kit";
+    import { wallet } from "../stores/wallet";
+    import retainer from "../contracts/retainer";
+
+    const retaineesDiv = document.getElementById(
+        "retainees",
+    ) as HTMLButtonElement;
+
+    const onWalletValue = async (value) => {
+        const tx = await retainer.retainor_info({ retainor: value});
+        const { result } = await tx.signAndSend();
+        return result;
+    };
+
+    wallet.subscribe((value) => {
+        if (value !== "") {
+            retainer.options.publicKey = value;
+            retainer.options.signTransaction = signTransaction;
+            onWalletValue(value).then((data) => {
+                console.log(data);
+
+                retaineesDiv.style.display = "block";
+            });
+        } else {
+            retaineesDiv.style.display = "none";
+        }
+    });
+</script>

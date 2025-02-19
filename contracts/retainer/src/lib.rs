@@ -295,8 +295,8 @@ impl Contract {
         set_retainer_balance(&env, &retainor, &retainee, retainer_balance);
     }
 
-    pub fn retainee_info(env: Env, retainee: Address) -> RetaineeInfo {
-        get_retainee_info(&env, &retainee).unwrap()
+    pub fn retainee_info(env: Env, retainee: Address) -> Option<RetaineeInfo> {
+        get_retainee_info(&env, &retainee)
     }
 
     pub fn set_retainee_info(env: Env, retainee: Address, name: String, retainors: Vec<Address>) {
@@ -308,8 +308,8 @@ impl Contract {
         set_retainee_info(&env, &retainee, retainee_info);
     }
 
-    pub fn retainor_info(env: Env, retainor: Address) -> RetainorInfo {
-        get_retainor_info(&env, &retainor).unwrap()
+    pub fn retainor_info(env: Env, retainor: Address) -> Option<RetainorInfo> {
+        get_retainor_info(&env, &retainor)
     }
     
     pub fn set_retainor_info(env: Env, retainor: Address, name: String, retainees: Vec<Address>) {

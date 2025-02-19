@@ -30,11 +30,14 @@
 
 <script>
   import { getPublicKey, connect, disconnect } from "../stellar-wallets-kit";
+  import { wallet } from "../stores/wallet";
 
   const ellipsis = document.querySelector(
     "#connect-wrap .ellipsis",
   ) as HTMLElement;
-  const connectButton = document.querySelector("[data-connect]") as HTMLButtonElement;
+  const connectButton = document.querySelector(
+    "[data-connect]",
+  ) as HTMLButtonElement;
   const disconnectButton = document.querySelector(
     "[data-disconnect]",
   ) as HTMLButtonElement;
@@ -44,6 +47,7 @@
     ellipsis.removeAttribute("title");
     connectButton.style.removeProperty("display");
     disconnectButton.style.display = "none";
+    wallet.set("");
   }
 
   async function showConnected() {
@@ -53,6 +57,7 @@
       ellipsis.title = publicKey ?? "";
       connectButton.style.display = "none";
       disconnectButton.style.removeProperty("display");
+      wallet.set(publicKey);
     } else {
       showDisconnected();
     }
