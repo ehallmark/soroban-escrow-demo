@@ -1,0 +1,35 @@
+---
+const address = Astro.props.address.trim();
+console.log(`address: ${address}`);
+---
+
+<span id="retainee-id" style="display: none;">{address}</span>
+<p>Retainee: {address}</p>
+<p>Fund Retainer</p>
+<p>Retainer Info:</p>
+
+<script>
+    import { wallet } from "../stores/contractStore";
+    import retainer from "../contracts/retainer";
+    wallet.subscribe((publicKey: string) => {
+        console.log(`publicKey: ${publicKey}`);
+        if (publicKey === "") {
+            return;
+        }
+        let address: string = ((document.getElementById('retainee-id') as HTMLSpanElement).textContent || "").trim();
+        if (address === "") {
+            console.error("No address found");
+            return;
+        }
+        
+        console.log(`publicKey: ${publicKey}`);
+        console.log(`address: ${address}`);
+        wallet.set(publicKey);
+
+        let retainerInfo = retainer.retainer_balance_unwrap({
+            retainor: publicKey,
+            retainee: address,
+        });
+        console.log(retainerInfo);
+    });
+</script>

@@ -1,16 +1,90 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import ConnectWallet from '../components/ConnectWallet.astro';
-import Retainees from "../components/Retainees.astro";
+import ConnectWallet from "../components/ConnectWallet.astro";
+import RetaineeProfile from "../components/RetaineeProfile.astro";
+import RetainorProfile from "../components/RetainorProfile.astro";
 ---
 
-<script is:inline>var global = global || window;</script>
+<script>
+	import { wallet, activePage } from "../stores/contractStore";
+	let retaineesBtn = document.getElementById(
+		"my-retainees",
+	) as HTMLButtonElement;
+	let retainorsBtn = document.getElementById(
+		"my-retainors",
+	) as HTMLButtonElement;
+	let connectedDiv = document.getElementById("connected") as HTMLDivElement;
+	let retaineesDiv = document.getElementById("retainees") as HTMLDivElement;
+	let retainorsDiv = document.getElementById("retainors") as HTMLDivElement;
+	let retaineesList = document.getElementById(
+		"retainees-list",
+	) as HTMLDivElement;
+	let retainorsList = document.getElementById(
+		"retainors-list",
+	) as HTMLDivElement;
+	wallet.subscribe((value) => {
+		if (value !== "") {
+			connectedDiv.style.display = "block";
+		} else {
+			connectedDiv.style.display = "none";
+		}
+	});
+	retaineesBtn.addEventListener("click", () => {
+		activePage.set("retainorProfile");
+	});
+	retainorsBtn.addEventListener("click", () => {
+		activePage.set("retaineeProfile");
+	});
+	activePage.subscribe((value) => {
+		retainorsBtn.classList.remove("active");
+		retaineesBtn.classList.remove("active");
+		if (value === "retaineeProfile") {
+			retaineesDiv.style.display = "none";
+			retaineesList.style.display = "none";
+			retainorsDiv.style.display = "block";
+			retainorsList.style.display = "block";
+			retainorsBtn.classList.add("active");
+		} else if (value === "retainorProfile") {
+			retainorsDiv.style.display = "none";
+			retainorsList.style.display = "none";
+			retaineesList.style.display = "block";
+			retaineesDiv.style.display = "block";
+			retaineesBtn.classList.add("active");
+		} else {
+			retainorsDiv.style.display = "none";
+			retainorsList.style.display = "none";
+			retaineesDiv.style.display = "none";
+			retaineesList.style.display = "none";
+		}
+	});
+</script>;
+
+<script is:inline>
+	var global = global || window;
+</script>
 <Layout title={"Soroban Payments App"}>
 	<main>
 		<ConnectWallet />
+		<h1 class="text-gradient">Soroban Payments</h1>
 		<p class="instructions">
-			<Retainees />
+			<strong>Instructions</strong><br />
+			1. Connect your Stellar Wallet<br />
+			2. Create a retainor profile or retainee profile<br />
+			3. Make payments to retainees or send bills to retainors<br />
+			4. View your payment history<br />
 		</p>
+		<div id="connected" style="display: none">
+			<p class="instructions">
+				<button id="my-retainees">Retainor Profile</button>
+				<button id="my-retainors">Retainee Profile</button>
+			</p>
+			<p class="instructions" id="retainees">
+				<RetainorProfile />
+			</p>
+			<p class="instructions" id="retainors" style="display: none">
+				<RetaineeProfile />
+			</p>
+		</div>
 	</main>
 </Layout>
 
@@ -50,7 +124,10 @@ import Retainees from "../components/Retainees.astro";
 	.instructions {
 		margin-bottom: 2rem;
 		border: 1px solid rgba(var(--accent-light), 25%);
-		background: linear-gradient(rgba(var(--accent-dark), 66%), rgba(var(--accent-dark), 33%));
+		background: linear-gradient(
+			rgba(var(--accent-dark), 66%),
+			rgba(var(--accent-dark), 33%)
+		);
 		padding: 1.5rem;
 		border-radius: 8px;
 	}
@@ -64,5 +141,14 @@ import Retainees from "../components/Retainees.astro";
 	}
 	.instructions strong {
 		color: rgb(var(--accent-light));
+	}
+	.instructions button {
+		display: inline-block;
+		width: 40%;
+		margin-left: 4%;
+		margin-right: 4%;
+		place-items: center;
+		justify-items: center;
+		align-items: center;
 	}
 </style>

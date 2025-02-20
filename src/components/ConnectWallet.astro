@@ -30,7 +30,9 @@
 
 <script>
   import { getPublicKey, connect, disconnect } from "../stellar-wallets-kit";
-  import { wallet } from "../stores/wallet";
+  import { wallet, retainees, retainors, retaineeName, retainorName } from "../stores/contractStore";
+  import { signTransaction } from "../stellar-wallets-kit";
+  import retainer from "../contracts/retainer";
 
   const ellipsis = document.querySelector(
     "#connect-wrap .ellipsis",
@@ -71,9 +73,59 @@
     disconnect(showDisconnected);
   });
 
-  if (await getPublicKey()) {
-    showConnected();
-  } else {
+  try {
+    if (await getPublicKey()) {
+      showConnected();
+    } else {
+      showDisconnected();
+    }
+  } catch (e) {
+    console.error(e);
     showDisconnected();
   }
+
+  const setRetainees = async (value: string) => {
+    try {
+      const { result } = await retainer.retainor_info({
+        retainor: value,
+      });
+      console.log(result);
+      if (result && result.hasOwnProperty("retainees")) {
+        retainees.set(result.retainees);
+        retainorName.set(result.name);
+      }
+    } catch (e) {
+      console.log("no retainees found");
+    }
+  };
+  const setRetainors = async (value: string) => {
+    try {
+      const { result } = await retainer.retainee_info({
+        retainee: value,
+      });
+      console.log(result);
+      if (result && result.hasOwnProperty("retainors")) {
+        retainors.set(result.retainors);
+        retaineeName.set(result.name);
+      }
+    } catch (e) {
+      console.log("no retainors found");
+    }
+  };
+
+  wallet.subscribe((value: string) => {
+    if (value !== "") {
+      retainer.options.publicKey = value;
+      retainer.options.signTransaction = signTransaction;
+      setRetainors(value).then(() => {
+        console.log("setRetainors");
+      });
+      setRetainees(value).then(() => {
+        console.log("setRetainees");
+      });
+    } else {
+      retainees.set([]);
+      retainors.set([]);
+    }
+  });
 </script>

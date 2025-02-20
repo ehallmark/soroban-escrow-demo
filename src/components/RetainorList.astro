@@ -1,0 +1,11 @@
+<div id="retainors-list"></div>
+
+<script>
+    import { retainors } from "../stores/contractStore";
+    let retainorsList = document.getElementById(
+        "retainors-list",
+    ) as HTMLDivElement;
+    retainors.subscribe((value) => {
+        retainorsList.innerHTML = value.map((r) => `<div>${r}</div>`).join("");
+    });
+</script>

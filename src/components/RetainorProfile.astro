@@ -1,0 +1,80 @@
+---
+import RetaineeList from "./RetaineeList.astro";
+---
+
+<strong>My Retainor Profile</strong><br />
+<label for="retainor-info-name">Name:</label><br /><input
+    type="text"
+    id="retainor-info-name"
+/><br />
+<label for="retainor-info-retainees">Retainees:</label><br /><textarea
+    id="retainor-info-retainees"></textarea>
+<br />
+<button id="retainor-info-btn">Create</button>
+<RetaineeList />
+
+<script>
+    import { wallet, retainees, retainorName } from "../stores/contractStore";
+    import retainer from "../contracts/retainer";
+
+    const onWalletValue = async (value: string) => {
+        try {
+            const { result } = await retainer.retainor_info({
+                retainor: value,
+            });
+            console.log(result);
+            if (result && result.hasOwnProperty("retainees")) {
+                retainees.set(result.retainees);
+                retainorName.set(result.name);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    const newRetainorButton = document.getElementById(
+        "retainor-info-btn",
+    ) as HTMLButtonElement;
+    const retainorNameInput = document.getElementById(
+        "retainor-info-name",
+    ) as HTMLInputElement;
+    const retainorRetaineesInput = document.getElementById(
+        "retainor-info-retainees",
+    ) as HTMLInputElement;
+
+    retainorName.subscribe((value) => {
+        if (value === "") {
+            newRetainorButton.innerHTML = "Create";
+        } else {
+            newRetainorButton.innerHTML = "Update";
+        }
+        retainorNameInput.value = value;
+    });
+
+    retainees.subscribe((value) => {
+        retainorRetaineesInput.value = value.join(",");
+        //retaineesDiv.innerHTML = value.map((r) => `<div>${r}</div>`).join("");
+    });
+
+    // listen for button click
+    newRetainorButton.addEventListener("click", async () => {
+        if (!retainorNameInput.value || wallet.get() === "") {
+            return;
+        }
+        let _retainees = retainees.get();
+        retainorRetaineesInput.value.split(",").forEach((r) => {
+            if (r.trim() !== "") {
+                _retainees.push(r.trim());
+            }
+        });
+        const tx = await retainer.set_retainor_info({
+            retainor: wallet.get(),
+            name: retainorNameInput.value,
+            retainees: _retainees,
+        });
+        console.log(tx);
+        const { result } = await tx.signAndSend();
+        console.log(result);
+        await onWalletValue(wallet.get());
+    });
+</script>

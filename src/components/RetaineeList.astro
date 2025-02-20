@@ -1,0 +1,38 @@
+<div id="retainees-list"></div>
+
+<script>
+    import { retainees } from "../stores/contractStore";
+    import retainer from "../contracts/retainer";
+
+    let retaineesList = document.getElementById(
+        "retainees-list",
+    ) as HTMLDivElement;
+
+    const createRow = async (r: string) => {
+        let name = "";
+        try {
+            let { result } = await retainer.retainee_info({
+                retainee: r,
+            });
+            name = result.name;
+            console.log(result);
+        } catch (e) {
+            console.error(e);
+        }
+        return `<tr>
+                    <td>${name}</td>
+                    <td>${r.substring(0, 8)}...</td>
+                    <td><a href="/retainee/${r}">Manage</a></td>
+                </tr>`;
+    };
+    retainees.subscribe(async (value) => {
+        let promises = value.map(async (r) => await createRow(r));
+        let results = await Promise.all(promises);
+        retaineesList.innerHTML = `<table>
+            <thead><tr><th>Name</th><th>Address</th><td>Manage</td><tr/></thead>
+            <tbody>
+                ${results.join("")}
+            </tbody>
+        </table>`;
+    });
+</script>

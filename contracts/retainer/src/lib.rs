@@ -261,6 +261,10 @@ impl Contract {
         get_retainer_balance(&env, &retainor, &retainee)
     }
 
+    pub fn retainer_balance_unwrap(env: Env, retainor: Address, retainee: Address) -> RetainerBalance {
+        get_retainer_balance(&env, &retainor, &retainee).unwrap()
+    }
+
     pub fn add_retainer_balance(env: Env, retainor: Address, retainee: Address, additional_amount: i128, token: Address) {
         retainor.require_auth();
         check_positive_amount(additional_amount);
@@ -295,8 +299,8 @@ impl Contract {
         set_retainer_balance(&env, &retainor, &retainee, retainer_balance);
     }
 
-    pub fn retainee_info(env: Env, retainee: Address) -> Option<RetaineeInfo> {
-        get_retainee_info(&env, &retainee)
+    pub fn retainee_info(env: Env, retainee: Address) -> RetaineeInfo {
+        get_retainee_info(&env, &retainee).unwrap()
     }
 
     pub fn set_retainee_info(env: Env, retainee: Address, name: String, retainors: Vec<Address>) {
@@ -308,8 +312,8 @@ impl Contract {
         set_retainee_info(&env, &retainee, retainee_info);
     }
 
-    pub fn retainor_info(env: Env, retainor: Address) -> Option<RetainorInfo> {
-        get_retainor_info(&env, &retainor)
+    pub fn retainor_info(env: Env, retainor: Address) -> RetainorInfo {
+        get_retainor_info(&env, &retainor).unwrap()
     }
     
     pub fn set_retainor_info(env: Env, retainor: Address, name: String, retainees: Vec<Address>) {

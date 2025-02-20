@@ -75,19 +75,19 @@ fn test_setup() {
     // Verify retainor info
     assert_eq!(
         contract.retainee_info(&retainee),
-        Some(RetaineeInfo {
+        RetaineeInfo {
             name: str(&env, "Alice"),
             retainors: vec![&env, retainor.clone()],
-        })
+        }
     );
 
     // Verify retainee info
     assert_eq!(
         contract.retainor_info(&retainor),
-        Some(RetainorInfo {
+        RetainorInfo {
             name: str(&env, "Bob"),
             retainees: vec![&env, retainee.clone()],
-        })
+        }
     );
 
     // Check initial token balances
