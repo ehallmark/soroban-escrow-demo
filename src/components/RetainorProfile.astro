@@ -57,7 +57,6 @@ import RetaineeList from "./RetaineeList.astro";
 
     retainees.subscribe((value) => {
         retainorRetaineesInput.value = value.join(",");
-        //retaineesDiv.innerHTML = value.map((r) => `<div>${r}</div>`).join("");
     });
 
     // listen for button click
@@ -65,7 +64,7 @@ import RetaineeList from "./RetaineeList.astro";
         if (!retainorNameInput.value || wallet.get() === "") {
             return;
         }
-        let _retainees = retainees.get();
+        let _retainees: string[] = [];
         retainorRetaineesInput.value.split(",").forEach((r) => {
             if (r.trim() !== "") {
                 _retainees.push(r.trim());
