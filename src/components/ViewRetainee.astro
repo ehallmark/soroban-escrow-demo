@@ -65,6 +65,7 @@ console.log(`address: ${address}`);
             <td>${r.bill.amount}</td>
             <td>${TOKEN_SYMBOLS[networkPassphrase][r.bill.token]}</td>
             <td>${r.notes}</td>
+            <td>${r.status.tag}</td>
         </tr>`;
             })
             .join("");
@@ -75,6 +76,7 @@ console.log(`address: ${address}`);
             <th>Amount</th>
             <th>Token</th>
             <th>Notes</th>
+            <th>Status</th>
         </tr>
     </thead>
     <tbody>
@@ -88,7 +90,7 @@ console.log(`address: ${address}`);
             "pending-bill",
         ) as HTMLParagraphElement;
         try {
-            let { result } = await retainer.view_bill({
+            let { result } = await retainer.view_bill_unwrap({
                 retainor: publicKey,
                 retainee: address,
             });
@@ -160,7 +162,8 @@ console.log(`address: ${address}`);
             });
         } catch (e) {
             console.log("no pending bill");
-            pendingBillElem.innerHTML = "No pending bill.";
+            pendingBillElem.innerHTML =
+                "<strong>Pending Payment</strong><br/><br/><span>No pending payment.</span>";
         }
     };
 
