@@ -38,3 +38,15 @@ export function getTokenContractForSymbol(symbol: string): string {
 export function urlForAccountAddress(address: string) {
     return `${explorerUrl}/account/${address}`
 }
+
+export function persistStorage(key: string, value: string) {
+    localStorage
+        .setItem
+        (key, value);
+};
+
+export function retrieveStorage(key: string, default_value: string): string {
+    return localStorage
+        .getItem
+        (key) ?? default_value;
+}

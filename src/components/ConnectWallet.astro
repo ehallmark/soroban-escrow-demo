@@ -73,6 +73,7 @@
   } from "../stores/contractStore";
   import { signTransaction } from "../stellar-wallets-kit";
   import retainer from "../contracts/retainer";
+  import { persistStorage, retrieveStorage } from "../contracts/util";
 
   const ellipsis = document.querySelector(
     "#connect-wrap .ellipsis",
@@ -90,16 +91,21 @@
     connectButton.style.removeProperty("display");
     disconnectButton.style.display = "none";
     wallet.set("");
+    persistStorage("wallet-public-key", "");
   }
 
   async function showConnected() {
-    const publicKey = await getPublicKey();
+    let publicKey: string | null = retrieveStorage("wallet-public-key", "");
+    if (publicKey === "") {
+      publicKey = await getPublicKey();
+    }
     if (publicKey) {
       ellipsis.innerHTML = `Signed in as ${publicKey}`;
       ellipsis.title = publicKey ?? "";
       connectButton.style.display = "none";
       disconnectButton.style.removeProperty("display");
       wallet.set(publicKey);
+      persistStorage("wallet-public-key", publicKey);
     } else {
       showDisconnected();
     }
@@ -110,11 +116,14 @@
   });
 
   disconnectButton.addEventListener("click", async () => {
-    disconnect(showDisconnected);
+    await disconnect(showDisconnected);
   });
 
   try {
-    if (await getPublicKey()) {
+    let storedPublicKey = retrieveStorage("wallet-public-key", "");
+    if (storedPublicKey !== "") {
+      showConnected();
+    } else if (await getPublicKey()) {
       showConnected();
     } else {
       showDisconnected();
