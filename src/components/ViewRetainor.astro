@@ -43,6 +43,7 @@ console.log(`address: ${address}`);
         getSymbolForTokenContract,
         getTokenContractForSymbol,
     } from "../contracts/util";
+    import { signAndSendWithModal } from "../contracts/transactions";
 
     const getAddress = () => {
         return (
@@ -141,14 +142,19 @@ console.log(`address: ${address}`);
                     retainee: publicKey,
                     retainor: address,
                 });
-                const { result } = await tx.signAndSend();
-                console.log(result);
-                updatePendingBill(publicKey, address).then(() => {
-                    console.log("Updated pending bill");
-                });
-                updateBillHistory(publicKey, address).then(() => {
-                    console.log("Updated bill history");
-                });
+                signAndSendWithModal(
+                    tx,
+                    document,
+                    () => {
+                        updatePendingBill(publicKey, address).then(() => {
+                            console.log("Updated pending bill");
+                        });
+                        updateBillHistory(publicKey, address).then(() => {
+                            console.log("Updated bill history");
+                        });
+                    },
+                    () => {},
+                );
             });
         } catch (e) {
             console.log("no pending bill");
@@ -226,9 +232,16 @@ console.log(`address: ${address}`);
         console.log(args);
         let tx = await retainer.submit_bill(args);
         console.log(tx);
-        const { result } = await tx.signAndSend();
-        console.log(result);
-        await updatePendingBill(publicKey, address);
+        signAndSendWithModal(
+            tx,
+            document,
+            () => {
+                updatePendingBill(publicKey, address).then(() => {
+                    console.log("Updated pending bill");
+                });
+            },
+            () => {},
+        );
     });
 
     wallet.subscribe(async (publicKey: string) => {

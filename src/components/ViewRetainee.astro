@@ -39,6 +39,7 @@ console.log(`address: ${address}`);
         getSymbolForTokenContract,
         getTokenContractForSymbol,
     } from "../contracts/util";
+    import { signAndSendWithModal } from "../contracts/transactions";
 
     const getAddress = () => {
         return (
@@ -136,14 +137,22 @@ console.log(`address: ${address}`);
                     notes: "Approved from UI",
                     date: new Date().toDateString(),
                 });
-                const { result } = await tx.signAndSend();
-                console.log(result);
-                updatePendingBill(publicKey, address).then(() => {
-                    console.log("Updated pending bill");
-                });
-                updateBillHistory(publicKey, address).then(() => {
-                    console.log("Updated bill history");
-                });
+                signAndSendWithModal(
+                    tx,
+                    document,
+                    () => {
+                        updateRetainerAmount(publicKey, address).then(() => {
+                            console.log("Updated retainer amount");
+                        });
+                        updatePendingBill(publicKey, address).then(() => {
+                            console.log("Updated pending bill");
+                        });
+                        updateBillHistory(publicKey, address).then(() => {
+                            console.log("Updated bill history");
+                        });
+                    },
+                    () => {},
+                );
             });
             reject.addEventListener("click", async () => {
                 let status = { tag: "Denied" } as ApprovalStatus;
@@ -154,14 +163,19 @@ console.log(`address: ${address}`);
                     notes: "Rejected from UI",
                     date: new Date().toDateString(),
                 });
-                const { result } = await tx.signAndSend();
-                console.log(result);
-                updatePendingBill(publicKey, address).then(() => {
-                    console.log("Updated pending bill");
-                });
-                updateBillHistory(publicKey, address).then(() => {
-                    console.log("Updated bill history");
-                });
+                signAndSendWithModal(
+                    tx,
+                    document,
+                    () => {
+                        updatePendingBill(publicKey, address).then(() => {
+                            console.log("Updated pending bill");
+                        });
+                        updateBillHistory(publicKey, address).then(() => {
+                            console.log("Updated bill history");
+                        });
+                    },
+                    () => {},
+                );
             });
         } catch (e) {
             console.log("no pending bill");
@@ -224,10 +238,15 @@ console.log(`address: ${address}`);
         };
         console.log(args);
         let tx = await retainer.add_retainer_balance(args);
-        console.log(tx);
-        const { result } = await tx.signAndSend();
-        console.log(result);
-        await updateRetainerAmount(publicKey, address);
+        signAndSendWithModal(
+            tx,
+            document,
+            () =>
+                updateRetainerAmount(publicKey, address).then(() => {
+                    console.log("updateRetainerAmount");
+                }),
+            () => {},
+        );
     });
 
     wallet.subscribe(async (publicKey: string) => {

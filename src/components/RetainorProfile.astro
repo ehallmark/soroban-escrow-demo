@@ -20,6 +20,7 @@ import RetaineeList from "./RetaineeList.astro";
 <script>
     import { wallet, retainees, retainorName } from "../stores/contractStore";
     import retainer from "../contracts/retainer";
+import { signAndSendWithModal } from "../contracts/transactions";
 
     const onWalletValue = async (value: string) => {
         try {
@@ -75,10 +76,16 @@ import RetaineeList from "./RetaineeList.astro";
             name: retainorNameInput.value,
             retainees: _retainees,
         });
-        console.log(tx);
-        const { result } = await tx.signAndSend();
-        console.log(result);
-        await onWalletValue(wallet.get());
+
+        signAndSendWithModal(
+            tx,
+            document,
+            () =>
+                onWalletValue(wallet.get()).then(() => {
+                    console.log("onWalletValue");
+                }),
+            () => {},
+        );
     });
 </script>
 
