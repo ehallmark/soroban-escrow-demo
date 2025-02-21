@@ -33,11 +33,9 @@ console.log(`address: ${address}`);
 <script>
     import { wallet } from "../stores/contractStore";
     import retainer from "../contracts/retainer";
-    import type { ApprovalStatus } from "../../packages/retainer/dist";
     import {
-        SYMBOL_TOKENS,
-        TOKEN_SYMBOLS,
-        networkPassphrase,
+        getSymbolForTokenContract,
+        getTokenContractForSymbol,
     } from "../contracts/util";
 
     const getAddress = () => {
@@ -66,7 +64,7 @@ console.log(`address: ${address}`);
                 return `<tr>
             <td>${r.date}</td>
             <td>${r.bill.amount}</td>
-            <td>${TOKEN_SYMBOLS[networkPassphrase][r.bill.token]}</td>
+            <td>${getSymbolForTokenContract(r.bill.token)}</td>
             <td>${r.notes}</td>
             <td>${r.status.tag}</td>
         </tr>`;
@@ -123,7 +121,7 @@ console.log(`address: ${address}`);
             <td><button id="withdraw">Withdraw</button>
             <td>${result.date}</td>
             <td>${result.amount}</td>
-            <td>${TOKEN_SYMBOLS[networkPassphrase][result.token]}</td>
+            <td>${getSymbolForTokenContract(result.token)}</td>
             <td>${result.notes}</td>
         </tr>
     </tbody>
@@ -169,7 +167,7 @@ console.log(`address: ${address}`);
             ) as HTMLSpanElement;
             retainerAmount.textContent = retainerInfo.result.amount.toString();
             retainerToken.textContent =
-                TOKEN_SYMBOLS[networkPassphrase][retainerInfo.result.token];
+                getSymbolForTokenContract(retainerInfo.result.token);
         } catch (e) {
             console.log("No retainer found");
             retainerInfo = {
@@ -202,9 +200,10 @@ console.log(`address: ${address}`);
             alert("Please input a valid amount");
             return;
         }
-        let retainerAmount = document
-            .getElementById("retainer-amount")
-            ?.innerText.trim();
+        let retainerAmountElem = document.getElementById(
+            "retainer-amount",
+        ) as HTMLSpanElement;
+        let retainerAmount = retainerAmountElem.innerText.trim();
         if (parseInt(amount, 10) > parseInt(retainerAmount, 10)) {
             alert("Not enough in retainer.");
             return;
@@ -218,7 +217,7 @@ console.log(`address: ${address}`);
         let args = {
             retainor: publicKey,
             retainee: address,
-            token: SYMBOL_TOKENS[networkPassphrase]["XLM"],
+            token: getTokenContractForSymbol("XLM"),
             amount: BigInt(amount),
             date: new Date().toDateString(),
             notes: notesInput.value ?? "",

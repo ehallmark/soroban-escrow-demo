@@ -27,6 +27,12 @@ export const SYMBOL_TOKENS = {
     }
 }
 
+export function getSymbolForTokenContract(address: string): string {
+    return "XLM";
+}
+export function getTokenContractForSymbol(symbol: string): string {
+    return "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC";
+}
 export function urlForAccountAddress(address: string) {
     return `${explorerUrl}/account/${address}`
 }
