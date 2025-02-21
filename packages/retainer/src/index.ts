@@ -34,7 +34,7 @@ if (typeof window !== 'undefined') {
 export const networks = {
   testnet: {
     networkPassphrase: "Test SDF Network ; September 2015",
-    contractId: "CBT4SEXXPIX66YM65HMJ6QBVMGCJZEVK4WIHF6P2LNZJ77EXVRXERBVL",
+    contractId: "CAJAFXQX63HCIPYRBTPFMNRFFMXGYHJER2DMTBB375G7SCX5IWZZU6R4",
   }
 } as const
 
@@ -160,6 +160,26 @@ export interface Client {
      */
     simulate?: boolean;
   }) => Promise<AssembledTransaction<Option<Bill>>>
+
+  /**
+   * Construct and simulate a view_bill_unwrap transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  view_bill_unwrap: ({retainor, retainee}: {retainor: string, retainee: string}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<Bill>>
 
   /**
    * Construct and simulate a view_receipt transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
@@ -430,6 +450,7 @@ export class Client extends ContractClient {
         "AAAAAAAAAAAAAAANdW5zdWJtaXRfYmlsbAAAAAAAAAIAAAAAAAAACHJldGFpbm9yAAAAEwAAAAAAAAAIcmV0YWluZWUAAAATAAAAAA==",
         "AAAAAAAAAAAAAAAMcmVzb2x2ZV9iaWxsAAAABQAAAAAAAAAIcmV0YWlub3IAAAATAAAAAAAAAAhyZXRhaW5lZQAAABMAAAAAAAAABnN0YXR1cwAAAAAH0AAAAA5BcHByb3ZhbFN0YXR1cwAAAAAAAAAAAAVub3RlcwAAAAAAABAAAAAAAAAABGRhdGUAAAAQAAAAAA==",
         "AAAAAAAAAAAAAAAJdmlld19iaWxsAAAAAAAAAgAAAAAAAAAIcmV0YWlub3IAAAATAAAAAAAAAAhyZXRhaW5lZQAAABMAAAABAAAD6AAAB9AAAAAEQmlsbA==",
+        "AAAAAAAAAAAAAAAQdmlld19iaWxsX3Vud3JhcAAAAAIAAAAAAAAACHJldGFpbm9yAAAAEwAAAAAAAAAIcmV0YWluZWUAAAATAAAAAQAAB9AAAAAEQmlsbA==",
         "AAAAAAAAAAAAAAAMdmlld19yZWNlaXB0AAAAAwAAAAAAAAAIcmV0YWlub3IAAAATAAAAAAAAAAhyZXRhaW5lZQAAABMAAAAAAAAABWluZGV4AAAAAAAABAAAAAEAAAPoAAAH0AAAAAdSZWNlaXB0AA==",
         "AAAAAAAAAAAAAAANaGlzdG9yeV9pbmRleAAAAAAAAAIAAAAAAAAACHJldGFpbm9yAAAAEwAAAAAAAAAIcmV0YWluZWUAAAATAAAAAQAAAAQ=",
         "AAAAAAAAAAAAAAAadmlld19yZWNlaXB0X2hpc3RvcnlfcmFuZ2UAAAAAAAQAAAAAAAAACHJldGFpbm9yAAAAEwAAAAAAAAAIcmV0YWluZWUAAAATAAAAAAAAAAVzdGFydAAAAAAAAAQAAAAAAAAAA2VuZAAAAAAEAAAAAQAAA+oAAAfQAAAAB1JlY2VpcHQA",
@@ -450,6 +471,7 @@ export class Client extends ContractClient {
         unsubmit_bill: this.txFromJSON<null>,
         resolve_bill: this.txFromJSON<null>,
         view_bill: this.txFromJSON<Option<Bill>>,
+        view_bill_unwrap: this.txFromJSON<Bill>,
         view_receipt: this.txFromJSON<Option<Receipt>>,
         history_index: this.txFromJSON<u32>,
         view_receipt_history_range: this.txFromJSON<Array<Receipt>>,

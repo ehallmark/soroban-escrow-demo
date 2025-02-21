@@ -6,8 +6,8 @@ console.log(`address: ${address}`);
 
 <p class="instructions">
     <strong>Retainer Info</strong><br />
-    <span id="retainee-id" style="display: none;">{address}</span>
-    <span>Name: <span id="retainee-name"></span></span><br />
+    <span id="retainor-id" style="display: none;">{address}</span>
+    <span>Name: <span id="retainor-name"></span></span><br />
     <span>
         Address: <a href={urlForAccountAddress(address)}
             >{address.substring(0, 8)}...</a
@@ -20,10 +20,13 @@ console.log(`address: ${address}`);
             style="margin-left: 5px;"></span>
     </span>
 </p>
-<p class="instructions">
-    <label for="fund-retainer-amount">XLM Amount</label>
-    <input type="number" id="fund-retainer-amount" />
-    <button id="fund-retainer">Fund Retainer</button>
+<p id="submit-bill-form" class="instructions">
+    <label for="submit-bill-amount">XLM Amount</label>
+    <input type="number" id="submit-bill-amount" /><br />
+    <label for="submit-bill-notes">Notes</label>
+    <textarea id="submit-bill-notes"></textarea>
+    <br />
+    <button id="submit-bill">Submit Bill</button>
 </p>
 <p class="instructions" id="pending-bill"></p>
 <p class="instructions" id="bill-history"></p>
@@ -39,7 +42,7 @@ console.log(`address: ${address}`);
 
     const getAddress = () => {
         return (
-            (document.getElementById("retainee-id") as HTMLSpanElement)
+            (document.getElementById("retainor-id") as HTMLSpanElement)
                 .textContent || ""
         ).trim();
     };
@@ -49,8 +52,8 @@ console.log(`address: ${address}`);
             "bill-history",
         ) as HTMLParagraphElement;
         let { result } = await retainer.view_receipt_history({
-            retainor: publicKey,
-            retainee: address,
+            retainee: publicKey,
+            retainor: address,
             limit: 0,
         });
         if (!result || result.length == 0) {
@@ -87,17 +90,22 @@ console.log(`address: ${address}`);
         let pendingBillElem = document.getElementById(
             "pending-bill",
         ) as HTMLParagraphElement;
+        let submitBillForm = document.getElementById(
+            "submit-bill-form",
+        ) as HTMLParagraphElement;
         try {
-            let { result } = await retainer.view_bill({
-                retainor: publicKey,
-                retainee: address,
+            let { result } = await retainer.view_bill_unwrap({
+                retainee: publicKey,
+                retainor: address,
             });
             if (!result) {
+                submitBillForm.style.display = "block";
                 pendingBillElem.innerHTML =
                     "<strong>Pending Payment</strong><br/><br/><span>No pending payment.</span>";
 
                 return;
             }
+            submitBillForm.style.display = "none";
             pendingBillElem.innerHTML = `<strong>Pending Payment</strong><br /><table>
     <thead>
         <tr>
@@ -110,7 +118,7 @@ console.log(`address: ${address}`);
     </thead>
     <tbody>
         <tr>
-            <td><button id='approve'>Approve</button><button id='reject'>Reject</button>
+            <td><button id="withdraw">Withdraw</button>
             <td>${result.date}</td>
             <td>${result.amount}</td>
             <td>${TOKEN_SYMBOLS[networkPassphrase][result.token]}</td>
@@ -118,36 +126,14 @@ console.log(`address: ${address}`);
         </tr>
     </tbody>
 </table>`;
-            let approve = document.getElementById(
-                "approve",
+
+            let withdraw = document.getElementById(
+                "withdraw",
             ) as HTMLButtonElement;
-            let reject = document.getElementById("reject") as HTMLButtonElement;
-            approve.addEventListener("click", async () => {
-                let status = { tag: "Approved" } as ApprovalStatus;
-                let tx = await retainer.resolve_bill({
-                    retainor: publicKey,
-                    retainee: address,
-                    status: status,
-                    notes: "Approved from UI",
-                    date: new Date().toDateString(),
-                });
-                const { result } = await tx.signAndSend();
-                console.log(result);
-                updatePendingBill(publicKey, address).then(() => {
-                    console.log("Updated pending bill");
-                });
-                updateBillHistory(publicKey, address).then(() => {
-                    console.log("Updated bill history");
-                });
-            });
-            reject.addEventListener("click", async () => {
-                let status = { tag: "Denied" } as ApprovalStatus;
-                let tx = await retainer.resolve_bill({
-                    retainor: publicKey,
-                    retainee: address,
-                    status: status,
-                    notes: "Rejected from UI",
-                    date: new Date().toDateString(),
+            withdraw.addEventListener("click", async () => {
+                let tx = await retainer.unsubmit_bill({
+                    retainee: publicKey,
+                    retainor: address,
                 });
                 const { result } = await tx.signAndSend();
                 console.log(result);
@@ -160,7 +146,9 @@ console.log(`address: ${address}`);
             });
         } catch (e) {
             console.log("no pending bill");
+            console.log(e);
             pendingBillElem.innerHTML = "No pending bill.";
+            submitBillForm.style.display = "block";
         }
     };
 
@@ -190,17 +178,33 @@ console.log(`address: ${address}`);
         }
         console.log(retainerInfo);
     };
+    `<label for="submit-bill-amount">XLM Amount</label>
+    <input type="number" id="submit-bill-amount" /><br />
+    <label for="submit-bill-notes">Notes</label>
+    <textarea id="submit-bill-notes"></textarea>
+    <br />
+    <button id="submit-bill">Submit Bill</button>`;
 
-    let fundButton = document.getElementById(
-        "fund-retainer",
+    let submitButton = document.getElementById(
+        "submit-bill",
     ) as HTMLButtonElement;
     let amountInput = document.getElementById(
-        "fund-retainer-amount",
+        "submit-bill-amount",
     ) as HTMLInputElement;
-    fundButton.addEventListener("click", async () => {
+    let notesInput = document.getElementById(
+        "submit-bill-notes",
+    ) as HTMLTextAreaElement;
+    submitButton.addEventListener("click", async () => {
         let amount = amountInput.value;
         if (!amount) {
             alert("Please input a valid amount");
+            return;
+        }
+        let retainerAmount = document
+            .getElementById("retainer-amount")
+            ?.innerText.trim();
+        if (parseInt(amount, 10) > parseInt(retainerAmount, 10)) {
+            alert("Not enough in retainer.");
             return;
         }
         let publicKey = wallet.get();
@@ -213,14 +217,16 @@ console.log(`address: ${address}`);
             retainor: publicKey,
             retainee: address,
             token: SYMBOL_TOKENS[networkPassphrase]["XLM"],
-            additional_amount: BigInt(amount),
+            amount: BigInt(amount),
+            date: new Date().toDateString(),
+            notes: notesInput.value ?? "",
         };
         console.log(args);
-        let tx = await retainer.add_retainer_balance(args);
+        let tx = await retainer.submit_bill(args);
         console.log(tx);
         const { result } = await tx.signAndSend();
         console.log(result);
-        await updateRetainerAmount(publicKey, address);
+        await updatePendingBill(publicKey, address);
     });
 
     wallet.subscribe(async (publicKey: string) => {
@@ -235,21 +241,21 @@ console.log(`address: ${address}`);
         }
 
         retainer
-            .retainee_info({
-                retainee: address,
+            .retainor_info({
+                retainor: address,
             })
             .then(({ result }) => {
-                console.log("Retainee info result");
+                console.log("retainor info result");
                 console.log(result);
                 if (result && result.hasOwnProperty("name")) {
                     let nameElem = document.getElementById(
-                        "retainee-name",
+                        "retainor-name",
                     ) as HTMLSpanElement;
                     nameElem.textContent = result.name;
                 }
             })
             .catch(() => {
-                console.log("No retainee name found");
+                console.log("No retainor name found");
             });
 
         updatePendingBill(publicKey, address).then(() => {

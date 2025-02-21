@@ -214,6 +214,10 @@ impl Contract {
         get_pending_payment(&env, &retainor, &retainee)
     }
 
+    pub fn view_bill_unwrap(env: Env, retainor: Address, retainee: Address) -> Bill {
+        get_pending_payment(&env, &retainor, &retainee).unwrap()
+    }
+
     pub fn view_receipt(env: Env, retainor: Address, retainee: Address, index: u32) -> Option<Receipt> {
         get_receipt(&env, &retainor, &retainee, index)
     }

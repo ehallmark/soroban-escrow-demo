@@ -142,8 +142,12 @@ function aliceAndBob() {
 
   let contract = JSON.parse(readFileSync(`${contractsDir}/retainer.json`)).ids[process.env.STELLAR_NETWORK_PASSPHRASE];
   let stellar_args = `--network ${process.env.STELLAR_NETWORK}`;
-  exe(`${cli} contract invoke --id ${contract} --source-account ${process.env.STELLAR_ACCOUNT} ${stellar_args} -- set_retainor_info --retainor ${alice} --name Alice --retainees '[ "${bob}" ]'`);
+  // alice registers as retainor (with herself and bob as retainees)
+  exe(`${cli} contract invoke --id ${contract} --source-account ${process.env.STELLAR_ACCOUNT} ${stellar_args} -- set_retainor_info --retainor ${alice} --name Alice --retainees '[ "${bob}", "${alice}" ]'`);
+  // bob registers as retainee
   exe(`${cli} contract invoke --id ${contract} --source-account ${process.env.STELLAR_ACCOUNT2} ${stellar_args} -- set_retainee_info --retainee ${bob} --name Bob --retainors '[ "${alice}" ]'`);
+  // alice registers as retainee for herself
+  exe(`${cli} contract invoke --id ${contract} --source-account ${process.env.STELLAR_ACCOUNT} ${stellar_args} -- set_retainee_info --retainee ${alice} --name Alice --retainors '[ "${alice}" ]'`);
 }
 
 // Calling the functions (equivalent to the last part of your bash script)

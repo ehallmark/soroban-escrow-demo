@@ -1,47 +1,20 @@
-<p class="instructions" id="retainors-list"></p>
+---
+import ViewRetainor from "../../components/ViewRetainor.astro";
+import Layout from "../../layouts/Layout.astro";
+import ConnectWallet from "../../components/ConnectWallet.astro";
 
-<script>
-    import { retainors } from "../stores/contractStore";
-    import retainer from "../contracts/retainer";
-    import { urlForAccountAddress } from "../contracts/util";
+const { address } = Astro.params;
+---
 
-    let retainorsList = document.getElementById(
-        "retainors-list",
-    ) as HTMLDivElement;
-
-    const createRow = async (r: string) => {
-        let name = "";
-        try {
-            let { result } = await retainer.retainor_info({
-                retainor: r,
-            });
-            name = result.name;
-            console.log(result);
-        } catch (e) {
-            console.log(`Unable to find retainor info for ${r}`);
-        }
-        return `<tr>
-                    <td>${name}</td>
-                    <td><a href="${urlForAccountAddress(r)}">${r.substring(0, 8)}...</a></td>
-                    <td><a href="/retainor/${r}">Manage</a></td>
-                </tr>`;
-    };
-
-    retainors.subscribe(async (value) => {
-        let promises = value.map(async (r) => await createRow(r));
-        let results = await Promise.all(promises);
-        retainorsList.innerHTML = `<strong>My Retainors</strong><br/><table>
-            <thead><tr>
-                <th>Name</th>
-                <th>Address</th>
-                <td>Manage</td>                
-            <tr/></thead>
-            <tbody>
-                ${results.join("")}
-            </tbody>
-        </table>`;
-    });
+<script is:inline>
+    var global = global || window;
 </script>
+<Layout title={"Soroban Payments App"}>
+    <main>
+        <ConnectWallet />
+        <ViewRetainor address={address} />
+    </main>
+</Layout>
 
 <style>
     main {
