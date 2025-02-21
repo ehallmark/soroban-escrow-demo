@@ -4,32 +4,116 @@ console.log(`address: ${address}`);
 ---
 
 <span id="retainee-id" style="display: none;">{address}</span>
-<p>Retainee: {address}</p>
-<p>Fund Retainer</p>
-<p>Retainer Info:</p>
-
+<p>Retainee: <span id="retainee-name"></span> {address.substring(0, 8)}...</p>
+<label for="fund-retainer-amount">XLM Amount</label>
+<input type="number" id="fund-retainer-amount" />
+<button id="fund-retainer">Fund Retainer</button>
+<h2>Retainer Info</h2>
+<p>
+    Amount in retainer: <span id="retainer-amount"></span><span
+        id="retainer-token" style="margin-left: 5px;"></span>
+</p>
 <script>
     import { wallet } from "../stores/contractStore";
     import retainer from "../contracts/retainer";
-    wallet.subscribe((publicKey: string) => {
+    import { SYMBOL_TOKENS, TOKEN_SYMBOLS, networkPassphrase } from "../contracts/util";
+
+    const getAddress = () => {
+        return (
+            (document.getElementById("retainee-id") as HTMLSpanElement)
+                .textContent || ""
+        ).trim();
+    };
+
+    const updateRetainerAmount = async (publicKey: string, address: string) => {
+        let retainerInfo;
+        try {
+            retainerInfo = await retainer.retainer_balance_unwrap({
+                retainor: publicKey,
+                retainee: address,
+            });
+            let retainerAmount = document.getElementById(
+                "retainer-amount",
+            ) as HTMLSpanElement;
+            let retainerToken = document.getElementById(
+                "retainer-token",
+            ) as HTMLSpanElement;
+            retainerAmount.textContent = retainerInfo.result.amount.toString();
+            retainerToken.textContent =
+                TOKEN_SYMBOLS[networkPassphrase][retainerInfo.result.token];
+        } catch (e) {
+            console.log("No retainer found");
+            retainerInfo = {
+                amount: "",
+                token: "",
+            };
+        }
+        console.log(retainerInfo);
+    };
+
+    let fundButton = document.getElementById(
+        "fund-retainer",
+    ) as HTMLButtonElement;
+    let amountInput = document.getElementById(
+        "fund-retainer-amount",
+    ) as HTMLInputElement;
+    fundButton.addEventListener("click", async () => {
+        let amount = amountInput.value;
+        if (!amount) {
+            alert("Please input a valid amount");
+            return;
+        }
+        let publicKey = wallet.get();
+        if (publicKey === "") {
+            alert("Public key not found");
+            return;
+        }
+        let address = getAddress();
+        let args = {
+            retainor: publicKey,
+            retainee: address,
+            token: SYMBOL_TOKENS[networkPassphrase]["XLM"],
+            additional_amount: BigInt(amount),
+        };
+        console.log(args);
+        let tx = await retainer.add_retainer_balance(args);
+        console.log(tx);
+        const { result } = await tx.signAndSend();
+        console.log(result);
+        await updateRetainerAmount(publicKey, address);
+    });
+
+    wallet.subscribe(async (publicKey: string) => {
         console.log(`publicKey: ${publicKey}`);
         if (publicKey === "") {
             return;
         }
-        let address: string = ((document.getElementById('retainee-id') as HTMLSpanElement).textContent || "").trim();
+        let address: string = getAddress();
         if (address === "") {
             console.error("No address found");
             return;
         }
-        
+
+        retainer
+            .retainee_info({
+                retainee: address,
+            })
+            .then(({ result }) => {
+                console.log("Retainee info result");
+                console.log(result);
+                if (result && result.hasOwnProperty("name")) {
+                    let nameElem = document.getElementById(
+                        "retainee-name",
+                    ) as HTMLSpanElement;
+                    nameElem.textContent = result.name;
+                }
+            })
+            .catch(() => {
+                console.log("No retainee name found");
+            });
+
         console.log(`publicKey: ${publicKey}`);
         console.log(`address: ${address}`);
-        wallet.set(publicKey);
-
-        let retainerInfo = retainer.retainer_balance_unwrap({
-            retainor: publicKey,
-            retainee: address,
-        });
-        console.log(retainerInfo);
+        await updateRetainerAmount(publicKey, address);
     });
 </script>

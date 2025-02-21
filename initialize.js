@@ -36,6 +36,7 @@ function exeReturn(command) {
 
 function fundAll() {
   exe(`${cli} keys generate --fund ${process.env.STELLAR_ACCOUNT} | true`);
+  exe(`${cli} keys generate --fund ${process.env.STELLAR_ACCOUNT2} | true`);
 }
 
 function removeFiles(pattern) {
@@ -135,9 +136,22 @@ function importAll() {
   contracts().forEach(importContract);
 }
 
+function aliceAndBob() {
+  let alice = exeReturn(`${cli} keys address ${process.env.STELLAR_ACCOUNT}`);
+  let bob = exeReturn(`${cli} keys address ${process.env.STELLAR_ACCOUNT2}`);
+
+  let contract = JSON.parse(readFileSync(`${contractsDir}/retainer.json`)).ids[process.env.STELLAR_NETWORK_PASSPHRASE];
+  let stellar_args = `--network ${process.env.STELLAR_NETWORK}`;
+  exe(`${cli} contract invoke --id ${contract} --source-account ${process.env.STELLAR_ACCOUNT} ${stellar_args} -- set_retainor_info --retainor ${alice} --name Alice --retainees '[ "${bob}" ]'`);
+  exe(`${cli} contract invoke --id ${contract} --source-account ${process.env.STELLAR_ACCOUNT2} ${stellar_args} -- set_retainee_info --retainee ${bob} --name Bob --retainors '[ "${alice}" ]'`);
+}
+
 // Calling the functions (equivalent to the last part of your bash script)
 fundAll();
 buildAll();
 deployAll();
 bindAll();
 importAll();
+aliceAndBob();
+
+console.log('###################### Done ########################');
