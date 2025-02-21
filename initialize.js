@@ -37,6 +37,7 @@ function exeReturn(command) {
 function fundAll() {
   exe(`${cli} keys generate --fund ${process.env.STELLAR_ACCOUNT} | true`);
   exe(`${cli} keys generate --fund ${process.env.STELLAR_ACCOUNT2} | true`);
+  exe(`${cli} keys generate --fund ${process.env.STELLAR_ACCOUNT3} | true`);
 }
 
 function removeFiles(pattern) {
@@ -139,6 +140,7 @@ function importAll() {
 function aliceAndBob() {
   let alice = exeReturn(`${cli} keys address ${process.env.STELLAR_ACCOUNT}`);
   let bob = exeReturn(`${cli} keys address ${process.env.STELLAR_ACCOUNT2}`);
+  let carol = exeReturn(`${cli} keys address ${process.env.STELLAR_ACCOUNT3}`);
 
   let contract = JSON.parse(readFileSync(`${contractsDir}/retainer.json`)).ids[process.env.STELLAR_NETWORK_PASSPHRASE];
   let stellar_args = `--network ${process.env.STELLAR_NETWORK}`;
@@ -147,7 +149,9 @@ function aliceAndBob() {
   // bob registers as retainee
   exe(`${cli} contract invoke --id ${contract} --source-account ${process.env.STELLAR_ACCOUNT2} ${stellar_args} -- set_retainee_info --retainee ${bob} --name Bob --retainors '[ "${alice}" ]'`);
   // alice registers as retainee for herself
-  exe(`${cli} contract invoke --id ${contract} --source-account ${process.env.STELLAR_ACCOUNT} ${stellar_args} -- set_retainee_info --retainee ${alice} --name Alice --retainors '[ "${alice}" ]'`);
+  exe(`${cli} contract invoke --id ${contract} --source-account ${process.env.STELLAR_ACCOUNT} ${stellar_args} -- set_retainee_info --retainee ${alice} --name Alice --retainors '[ "${carol}", "${alice}" ]'`);
+  // carol registers as a retainor with alice as retainee
+  exe(`${cli} contract invoke --id ${contract} --source-account ${process.env.STELLAR_ACCOUNT3} ${stellar_args} -- set_retainor_info --retainor ${carol} --name Carol --retainees '[ "${alice}" ]'`);
 }
 
 // Calling the functions (equivalent to the last part of your bash script)
