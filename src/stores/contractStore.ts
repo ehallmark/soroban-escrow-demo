@@ -10,5 +10,3 @@ export const retainors = atom(_retainors);
 
 export const retainorName = atom("");
 export const retaineeName = atom("");
-
-export const activePage = atom("");

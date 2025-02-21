@@ -1,5 +1,4 @@
 <div id="connect-wrap" class="wrap" aria-live="polite">
-  &nbsp;
   <div class="ellipsis"></div>
   <button style="display:none" data-connect aria-controls="connect-wrap">
     Connect
@@ -13,11 +12,14 @@
   .wrap {
     text-align: center;
     display: flex;
-    width: 18em;
+    flex-direction: column;
+    width: 100%;
+    max-width: 18em;
     margin: auto;
     justify-content: center;
     line-height: 2.7rem;
     gap: 0.5rem;
+    margin-bottom: 1.5rem;
   }
 
   .ellipsis {
@@ -25,12 +27,50 @@
     text-overflow: ellipsis;
     text-align: center;
     white-space: nowrap;
+    margin-bottom: 0.5rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  button {
+    padding: 0.75rem;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+    width: 100%;
+  }
+
+  button:hover {
+    background: #0056b3;
+  }
+
+  @media (max-width: 768px) {
+    .wrap {
+      width: 80%;
+      margin: auto;
+      padding: 1rem;
+    }
+
+    button {
+      width: 100%;
+      margin: 0.5rem 0;
+    }
   }
 </style>
 
 <script>
   import { getPublicKey, connect, disconnect } from "../stellar-wallets-kit";
-  import { wallet, retainees, retainors, retaineeName, retainorName } from "../stores/contractStore";
+  import {
+    wallet,
+    retainees,
+    retainors,
+    retaineeName,
+    retainorName,
+  } from "../stores/contractStore";
   import { signTransaction } from "../stellar-wallets-kit";
   import retainer from "../contracts/retainer";
 

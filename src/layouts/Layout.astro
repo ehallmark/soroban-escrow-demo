@@ -1,6 +1,6 @@
 ---
 interface Props {
-	title: string;
+  title: string;
 }
 
 const { title } = Astro.props;
@@ -8,17 +8,17 @@ const { title } = Astro.props;
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="description" content="Astro description" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Astro description" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
 </html>
 <style is:global>
   :root {
@@ -50,22 +50,27 @@ const { title } = Astro.props;
   }
   button {
     border: 1px solid rgb(var(--accent));
-    background-color: #23262d;
-    background-image: none;
-    background-size: 400%;
-    border-radius: 7px;
-    color: white;
-    cursor: pointer;
-    font-size: inherit;
-    padding: 0.5rem 1rem;
-    background-position: 100%;
-    transition: background-position 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  button:is(:hover, :focus-within), button.active {
-    color: black;
-    background-position: 0;
-    background-size: 400%;
+    background-color: #6a0dad; /* Changed to a more purple color */
     background-image: var(--accent-gradient);
+    background-size: 200%;
+    border-radius: 7px;
+    color: #3a3d44;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 0.75rem 1.5rem;
+    margin: auto;
+    background-position: 100%;
+    transition:
+      background-position 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  button:is(:hover, :focus-within),
+  button.active {
+    color: white;
+    background-position: 0;
+    background-size: 200%;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
   }
   button:is(:disabled) {
     color: white;
@@ -94,5 +99,76 @@ const { title } = Astro.props;
     position: absolute;
     white-space: nowrap;
     width: 1px;
+  }
+
+  label {
+    color: white;
+  }
+
+  strong {
+    color: white;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: white;
+  }
+
+  /* Table Styles */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    background-color: #23262d;
+    color: white;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  table th,
+  table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  table th {
+    background-color: #2c2f36;
+    color: #fff;
+  }
+  table tr:nth-child(even) {
+    background-color: #2c2f36;
+  }
+  table tr:hover {
+    background-color: #3a3d44;
+  }
+  table a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  table a:hover {
+    text-decoration: underline;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: white;
+  }
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  .form-group textarea {
+    resize: vertical;
   }
 </style>

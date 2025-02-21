@@ -1,9 +1,7 @@
 ---
-import ViewRetainor from "../../components/ViewRetainor.astro";
-import Layout from "../../layouts/Layout.astro";
-import ConnectWallet from "../../components/ConnectWallet.astro";
-
-const { address } = Astro.params;
+import Profile from "../components/RetainorProfile.astro";
+import Layout from "../layouts/Layout.astro";
+import ConnectWallet from "../components/ConnectWallet.astro";
 ---
 
 <script is:inline>
@@ -12,7 +10,7 @@ const { address } = Astro.params;
 <Layout title={"Soroban Payments App"}>
     <main>
         <ConnectWallet />
-        <ViewRetainor address={address} />
+        <Profile />
     </main>
 </Layout>
 

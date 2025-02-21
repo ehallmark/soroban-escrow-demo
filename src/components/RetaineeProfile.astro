@@ -2,16 +2,20 @@
 import RetainorList from "./RetainorList.astro";
 ---
 
-<strong>My Retainee Profile</strong><br />
-<label for="retainee-info-name">Name:</label><br /><input
-    type="text"
-    id="retainee-info-name"
-/><br />
-<label for="retainee-info-retainors">Retainors (comma delimited):</label><br /><textarea
-    id="retainee-info-retainors"></textarea>
-<br />
-<button id="retainee-info-btn">Create</button>
-<RetainorList />
+<div class="retainee-profile">
+    <h2>My Retainee Profile</h2>
+    <div class="form-group">
+        <label for="retainee-info-name">Name:</label>
+        <input type="text" id="retainee-info-name" />
+    </div>
+    <div class="form-group">
+        <label for="retainee-info-retainors">Retainors (comma delimited):</label
+        >
+        <textarea id="retainee-info-retainors"></textarea>
+    </div>
+    <button id="retainee-info-btn">Create</button>
+    <RetainorList />
+</div>
 
 <script>
     import { wallet, retainors, retaineeName } from "../stores/contractStore";
@@ -77,3 +81,24 @@ import RetainorList from "./RetainorList.astro";
         await onWalletValue(wallet.get());
     });
 </script>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+    h2 {
+        margin-top: 0;
+    }
+    .retainee-profile {
+        max-width: 600px;
+        margin: auto;
+        padding: 2rem;
+        border-radius: 8px;
+        border: 1px solid rgba(var(--accent-light), 25%);
+        background: linear-gradient(
+            rgba(var(--accent-dark), 66%),
+            rgba(var(--accent-dark), 33%)
+        );
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+</style>

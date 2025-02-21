@@ -4,32 +4,38 @@ const address = Astro.props.address.trim();
 console.log(`address: ${address}`);
 ---
 
-<p class="instructions">
-    <strong>Retainer Info</strong><br />
-    <span id="retainor-id" style="display: none;">{address}</span>
-    <span>Name: <span id="retainor-name"></span></span><br />
-    <span>
-        Address: <a href={urlForAccountAddress(address)}
-            >{address.substring(0, 8)}...</a
-        >
-    </span>
-    <br />
-    <span>
-        Amount in retainer: <span id="retainer-amount"></span><span
-            id="retainer-token"
-            style="margin-left: 5px;"></span>
-    </span>
-</p>
-<p id="submit-bill-form" class="instructions">
-    <label for="submit-bill-amount">XLM Amount</label>
-    <input type="number" id="submit-bill-amount" /><br />
-    <label for="submit-bill-notes">Notes</label>
-    <textarea id="submit-bill-notes"></textarea>
-    <br />
-    <button id="submit-bill">Submit Bill</button>
-</p>
-<p class="instructions" id="pending-bill"></p>
-<p class="instructions" id="bill-history"></p>
+<div class="view">
+    <h2>Retainer Info</h2>
+    <p>
+        <span id="retainor-id" style="display: none;">{address}</span>
+        <span>Name: <span id="retainor-name"></span></span><br />
+        <span>
+            Address: <a target="_blank" href={urlForAccountAddress(address)}
+                >{address.substring(0, 8)}...</a
+            >
+        </span>
+        <br />
+        <span>
+            Amount in retainer: <span id="retainer-amount"></span><span
+                id="retainer-token"
+                style="margin-left: 5px;"></span>
+        </span>
+    </p>
+    <div id="submit-bill-form" class="instructions">
+        <div class="form-group">
+            <label for="submit-bill-amount">XLM Amount</label>
+            <input type="number" id="submit-bill-amount" />
+        </div>
+        <div class="form-group">
+            <label for="submit-bill-notes">Notes</label>
+            <textarea id="submit-bill-notes"></textarea>
+        </div>
+        <button id="submit-bill">Submit Bill</button>
+    </div>
+    <p class="instructions" id="pending-bill"></p>
+    <p class="instructions" id="bill-history"></p>
+</div>
+
 <script>
     import { wallet } from "../stores/contractStore";
     import retainer from "../contracts/retainer";
@@ -56,7 +62,7 @@ console.log(`address: ${address}`);
         });
         if (!result || result.length == 0) {
             billHistoryElem.innerHTML =
-                "<strong>Bill History</strong><br/><br/><span>No bill history.</span>";
+                "<h3>Bill History</h3><span>No bill history.</span>";
             return;
         }
         let data: string = result
@@ -70,7 +76,7 @@ console.log(`address: ${address}`);
         </tr>`;
             })
             .join("");
-        billHistoryElem.innerHTML = `<strong>Bill History</strong><br /><table>
+        billHistoryElem.innerHTML = `<h3>Bill History</h3><table>
     <thead>
         <tr>
             <th>Date</th>
@@ -101,12 +107,12 @@ console.log(`address: ${address}`);
             if (!result) {
                 submitBillForm.style.display = "block";
                 pendingBillElem.innerHTML =
-                    "<strong>Pending Payment</strong><br/><br/><span>No pending payment.</span>";
+                    "<h3>Pending Payment</h3><span>No pending payment.</span>";
 
                 return;
             }
             submitBillForm.style.display = "none";
-            pendingBillElem.innerHTML = `<strong>Pending Payment</strong><br /><table>
+            pendingBillElem.innerHTML = `<h3>Pending Payment</h3><table>
     <thead>
         <tr>
             <th>Manage</th>
@@ -147,7 +153,7 @@ console.log(`address: ${address}`);
         } catch (e) {
             console.log("no pending bill");
             pendingBillElem.innerHTML =
-                "<strong>Pending Payment</strong><br/><br/><span>No pending payment.</span>";
+                "<h3>Pending Payment</h3><span>No pending payment.</span>";
             submitBillForm.style.display = "block";
         }
     };
@@ -166,8 +172,9 @@ console.log(`address: ${address}`);
                 "retainer-token",
             ) as HTMLSpanElement;
             retainerAmount.textContent = retainerInfo.result.amount.toString();
-            retainerToken.textContent =
-                getSymbolForTokenContract(retainerInfo.result.token);
+            retainerToken.textContent = getSymbolForTokenContract(
+                retainerInfo.result.token,
+            );
         } catch (e) {
             console.log("No retainer found");
             retainerInfo = {
@@ -178,12 +185,6 @@ console.log(`address: ${address}`);
         }
         console.log(retainerInfo);
     };
-    `<label for="submit-bill-amount">XLM Amount</label>
-    <input type="number" id="submit-bill-amount" /><br />
-    <label for="submit-bill-notes">Notes</label>
-    <textarea id="submit-bill-notes"></textarea>
-    <br />
-    <button id="submit-bill">Submit Bill</button>`;
 
     let submitButton = document.getElementById(
         "submit-bill",
@@ -272,66 +273,25 @@ console.log(`address: ${address}`);
 </script>
 
 <style>
-    main {
+    * {
+        box-sizing: border-box;
+    }
+    h2 {
+        margin-top: 0;
+    }
+    .view {
+        max-width: 1000px;
         margin: auto;
-        padding: 1rem;
-        width: 800px;
-        max-width: calc(100% - 2rem);
-        color: white;
-        font-size: 20px;
-        line-height: 1.6;
-    }
-    .astro-a {
-        position: absolute;
-        top: -32px;
-        left: 50%;
-        transform: translatex(-50%);
-        width: 220px;
-        height: auto;
-        z-index: -1;
-    }
-    h1 {
-        font-size: 4rem;
-        font-weight: 700;
-        line-height: 1;
-        text-align: center;
-        margin-bottom: 1em;
-    }
-    .text-gradient {
-        background-image: var(--accent-gradient);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-size: 400%;
-        background-position: 0%;
-    }
-    .instructions {
-        margin-bottom: 2rem;
+        padding: 2rem;
+        border-radius: 8px;
         border: 1px solid rgba(var(--accent-light), 25%);
         background: linear-gradient(
             rgba(var(--accent-dark), 66%),
             rgba(var(--accent-dark), 33%)
         );
-        padding: 1.5rem;
-        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-    .instructions code {
-        font-size: 0.8em;
-        font-weight: bold;
-        background: rgba(var(--accent-light), 12%);
-        color: rgb(var(--accent-light));
-        border-radius: 4px;
-        padding: 0.3em 0.4em;
-    }
-    .instructions strong {
-        color: rgb(var(--accent-light));
-    }
-    .instructions button {
-        display: inline-block;
-        width: 40%;
-        margin-left: 4%;
-        margin-right: 4%;
-        place-items: center;
-        justify-items: center;
-        align-items: center;
+    .instructions {
+        font-size: 18px;
     }
 </style>
