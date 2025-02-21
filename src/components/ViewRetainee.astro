@@ -3,26 +3,155 @@ const address = Astro.props.address.trim();
 console.log(`address: ${address}`);
 ---
 
+<h2>Retainer Info</h2>
 <span id="retainee-id" style="display: none;">{address}</span>
-<p>Retainee: <span id="retainee-name"></span> {address.substring(0, 8)}...</p>
+<p>Name: <span id="retainee-name"></span></p>
+<p>Address: {address.substring(0, 8)}...</p>
+<p>
+    Amount in retainer: <span id="retainer-amount"></span><span
+        id="retainer-token"
+        style="margin-left: 5px;"></span>
+</p>
 <label for="fund-retainer-amount">XLM Amount</label>
 <input type="number" id="fund-retainer-amount" />
 <button id="fund-retainer">Fund Retainer</button>
-<h2>Retainer Info</h2>
-<p>
-    Amount in retainer: <span id="retainer-amount"></span><span
-        id="retainer-token" style="margin-left: 5px;"></span>
-</p>
+<h2>Pending Bill</h2>
+<p id="pending-bill"></p>
+<h2>Bill History</h2>
+<p id="bill-history"></p>
+
 <script>
     import { wallet } from "../stores/contractStore";
     import retainer from "../contracts/retainer";
-    import { SYMBOL_TOKENS, TOKEN_SYMBOLS, networkPassphrase } from "../contracts/util";
+    import type { ApprovalStatus } from "../../packages/retainer/dist";
+    import {
+        SYMBOL_TOKENS,
+        TOKEN_SYMBOLS,
+        networkPassphrase,
+    } from "../contracts/util";
 
     const getAddress = () => {
         return (
             (document.getElementById("retainee-id") as HTMLSpanElement)
                 .textContent || ""
         ).trim();
+    };
+
+    const updateBillHistory = async (publicKey: string, address: string) => {
+        let billHistoryElem = document.getElementById(
+            "bill-history",
+        ) as HTMLParagraphElement;
+        let { result } = await retainer.view_receipt_history({
+            retainor: publicKey,
+            retainee: address,
+            limit: 0,
+        });
+        if (!result || result.length == 0) {
+            billHistoryElem.innerHTML = "No bill history.";
+            return;
+        }
+        let data: string = result
+            .map((r) => {
+                return `<tr>
+                        <td>${r.date}</td>
+                        <td>${r.bill.amount}</td>
+                        <td>${TOKEN_SYMBOLS[networkPassphrase][r.bill.token]}</td>
+                        <td>${r.notes}</td>
+                    </tr>`;
+            })
+            .join("");
+        billHistoryElem.innerHTML = `<table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Token</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${data}
+                </tbody>
+            </table>`;
+    };
+
+    const updatePendingBill = async (publicKey: string, address: string) => {
+        let pendingBillElem = document.getElementById(
+            "pending-bill",
+        ) as HTMLParagraphElement;
+        try {
+            let { result } = await retainer.view_bill({
+                retainor: publicKey,
+                retainee: address,
+            });
+            if (!result) {
+                pendingBillElem.innerHTML = "No pending bill.";
+                return;
+            }
+            pendingBillElem.innerHTML = `<table>
+                <thead>
+                    <tr>
+                        <th>Manage</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Token</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><button id='approve'>Approve</button><button id='reject'>Reject</button>
+                        <td>${result.date}</td>
+                        <td>${result.amount}</td>
+                        <td>${TOKEN_SYMBOLS[networkPassphrase][result.token]}</td>
+                        <td>${result.notes}</td>
+                    </tr>
+                </tbody>
+            </table>`;
+            let approve = document.getElementById(
+                "approve",
+            ) as HTMLButtonElement;
+            let reject = document.getElementById("reject") as HTMLButtonElement;
+            approve.addEventListener("click", async () => {
+                let status = { tag: "Approved" } as ApprovalStatus;
+                let tx = await retainer.resolve_bill({
+                    retainor: publicKey,
+                    retainee: address,
+                    status: status,
+                    notes: "Approved from UI",
+                    date: new Date().toDateString(),
+                });
+                const { result } = await tx.signAndSend();
+                console.log(result);
+                updatePendingBill(publicKey, address).then(() => {
+                    console.log("Updated pending bill");
+                });
+                updateBillHistory(publicKey, address).then(() => {
+                    console.log("Updated bill history");
+                });
+            });
+            reject.addEventListener("click", async () => {
+                let status = { tag: "Denied" } as ApprovalStatus;
+                let tx = await retainer.resolve_bill({
+                    retainor: publicKey,
+                    retainee: address,
+                    status: status,
+                    notes: "Rejected from UI",
+                    date: new Date().toDateString(),
+                });
+                const { result } = await tx.signAndSend();
+                console.log(result);
+                updatePendingBill(publicKey, address).then(() => {
+                    console.log("Updated pending bill");
+                });
+                updateBillHistory(publicKey, address).then(() => {
+                    console.log("Updated bill history");
+                });
+            });
+        } catch (e) {
+            console.log("no pending bill");
+            pendingBillElem.innerHTML = "No pending bill.";
+        }
     };
 
     const updateRetainerAmount = async (publicKey: string, address: string) => {
@@ -112,6 +241,12 @@ console.log(`address: ${address}`);
                 console.log("No retainee name found");
             });
 
+        updatePendingBill(publicKey, address).then(() => {
+            console.log("Pending bill updated");
+        });
+        updateBillHistory(publicKey, address).then(() => {
+            console.log("Bill history updated");
+        });
         console.log(`publicKey: ${publicKey}`);
         console.log(`address: ${address}`);
         await updateRetainerAmount(publicKey, address);
