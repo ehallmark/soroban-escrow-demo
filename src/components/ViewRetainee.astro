@@ -5,10 +5,11 @@ console.log(`address: ${address}`);
 ---
 
 <div class="view">
+    <a href="/retainor-profile">Back to Profile</a>
     <h2>Retainer Info</h2>
     <p>
         <span id="retainee-id" style="display: none;">{address}</span>
-        <span>Name: <span id="retainee-name"></span></span><br />
+        <span>Retainee Name: <span id="retainee-name"></span></span><br />
         <span>
             Address: <a target="_blank" href={urlForAccountAddress(address)}
                 >{address.substring(0, 8)}...</a
