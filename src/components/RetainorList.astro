@@ -49,4 +49,42 @@
     .instructions {
         margin-top: 1.5rem;
     }
+
+    @media (max-width: 420px) {
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            background-color: #23262d;
+            color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            display: table;
+        }
+        table th,
+        table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        table th {
+            background-color: #2c2f36;
+            color: #fff;
+        }
+        table tr:nth-child(even) {
+            background-color: #2c2f36;
+        }
+        table tr:hover {
+            background-color: #3a3d44;
+        }
+        table a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        table a:hover {
+            text-decoration: underline;
+        }
+    }
 </style>
